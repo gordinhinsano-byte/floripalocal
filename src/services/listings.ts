@@ -104,6 +104,13 @@ export async function searchListings(params: SearchParams): Promise<Listing[]> {
 }
 
 export async function getRecentListings(limit = 8): Promise<Listing[]> {
+    const ADULT_CATEGORIES = [
+        'acompanhantes',
+        'acompanhantes-trans',
+        'acompanhantes-masculinos',
+        'encontros'
+    ];
+
     const { data, error } = await supabase
         .from('listings')
         .select(`
@@ -115,6 +122,7 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
             )
         `)
         .eq('status', 'active')
+        .not('category_id', 'in', `(${ADULT_CATEGORIES.map(c => `"${c}"`).join(',')})`) // Supabase syntax for NOT IN with list
         .order('created_at', { ascending: false })
         .limit(limit);
 
