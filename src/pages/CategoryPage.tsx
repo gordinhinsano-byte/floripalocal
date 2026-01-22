@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FiltersPanel } from "@/components/FiltersPanel";
 import { AdultContentWarning } from "@/components/AdultContentWarning";
+import { VIPCarousel } from "@/components/VIPCarousel";
 import { useQuery } from "@tanstack/react-query";
 import { searchListings, getFavorites, toggleFavorite } from "@/services/listings";
 import { getCategoryBySlug } from "@/services/categories";
@@ -282,7 +283,7 @@ export default function CategoryPage() {
     };
 
     // Client-side filtering
-    const filteredAds = ads.filter((ad: any) => {
+    const allFilteredAds = ads.filter((ad: any) => {
         // Advertiser Type
         if (advertiserType === 'private') {
             const current = ad.attributes?.advertiser_type;
@@ -420,6 +421,27 @@ export default function CategoryPage() {
         return true;
     });
 
+    // Split into VIP and Regular ads
+    const { vipAds, regularAds } = useMemo(() => {
+        const vip: any[] = [];
+        const regular: any[] = [];
+
+        allFilteredAds.forEach((ad: any) => {
+            const promotions = ad.attributes?.promotions || [];
+            const planTier = (ad.attributes?.plan_tier ? String(ad.attributes.plan_tier).toLowerCase() : "");
+            const planExpiresAt = ad.attributes?.plan_expires_at ? Date.parse(String(ad.attributes.plan_expires_at)) : NaN;
+            const isPlanActive = Number.isFinite(planExpiresAt) ? planExpiresAt > Date.now() : false;
+            const isVip = (planTier === "vip" && isPlanActive) || promotions.includes('vip');
+
+            if (isVip) {
+                vip.push(ad);
+            }
+            regular.push(ad);
+        });
+
+        return { vipAds: vip, regularAds: regular };
+    }, [allFilteredAds]);
+
     const handleFilterChange = (newValues: any) => {
         const newParams = new URLSearchParams(searchParams);
         Object.entries(newValues).forEach(([key, value]) => {
@@ -548,7 +570,7 @@ export default function CategoryPage() {
                     <div className="flex flex-col md:flex-row justify-between items-end mb-4 border-b border-gray-200 pb-2">
                         <div className="flex items-baseline gap-6">
                             <h1 className="text-xl text-gray-800 font-normal">
-                                <span className="font-bold">{filteredAds.length} resultados</span> {categoryTitle} em {stateQuery || "Brasil"}
+                                <span className="font-bold">{allFilteredAds.length} resultados</span> {categoryTitle} em {stateQuery || "Brasil"}
                                 <div className="h-[3px] bg-viva-green w-full mt-1"></div>
                             </h1>
                             
@@ -598,45 +620,65 @@ export default function CategoryPage() {
                         </div>
                     </div>
 
+                    {/* VIP Carousel */}
+                    {vipAds.length > 0 && (
+                        <div className="mb-6">
+                            <VIPCarousel 
+                                ads={vipAds} 
+                                favorites={favorites} 
+                                onToggleFavorite={handleToggleFavorite} 
+                            />
+                        </div>
+                    )}
+
                     {/* Listings */}
                     <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" : "space-y-4"}>
                         {isLoading ? (
                             <div className="col-span-full text-center py-10 text-gray-500">Carregando anúncios...</div>
-                        ) : filteredAds.length === 0 ? (
+                        ) : regularAds.length === 0 && vipAds.length === 0 ? (
                             <div className="col-span-full text-center py-10 bg-white rounded shadow-sm border border-gray-200">
                                 <p className="text-gray-500 text-lg">Nenhum anúncio encontrado nesta categoria.</p>
                             </div>
                         ) : (
-                                filteredAds.map((ad: any) => {
+                            regularAds.map((ad: any) => {
                                     // Determine styling based on promotion plan (mocked or from attributes)
                                     // In a real app, this would check active subscriptions/promotions
                                     const promotions = ad.attributes?.promotions || [];
-                                    const isVip = promotions.includes('vip');
-                                    const isPremium = promotions.includes('premium');
-                                    const isHighlight = promotions.includes('highlight');
+                                    const planTier = (ad.attributes?.plan_tier ? String(ad.attributes.plan_tier).toLowerCase() : "");
+                                    const planExpiresAt = ad.attributes?.plan_expires_at ? Date.parse(String(ad.attributes.plan_expires_at)) : NaN;
+                                    const isPlanActive = Number.isFinite(planExpiresAt) ? planExpiresAt > Date.now() : false;
+                                    
+                                    // VIPs are handled in Carousel, so here we only check Premium and Highlight
+                                    const isVip = (planTier === "vip" && isPlanActive) || promotions.includes('vip');
+                                    const isPremium = (planTier === "premium" && isPlanActive) || promotions.includes('premium');
+                                    const isHighlight = promotions.includes('highlight'); // Green
                                     const isNew = promotions.includes('new_label');
                                     const isFavorited = favorites.includes(ad.id);
 
                                     // Base styles
                                     let containerClasses = "";
                                     let titleClasses = "";
+                                    const customStyle: React.CSSProperties = {};
                                     
                                     if (viewMode === 'list') {
                                         // LIST VIEW STYLES
-                                        containerClasses = "bg-white border p-4 flex gap-4 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm";
+                                        // Base container
+                                        containerClasses = "border p-4 flex gap-4 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm";
                                         titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-[#004e8a]";
                                         
-                                        if (isVip) {
-                                            containerClasses += " border-orange-300 bg-orange-50 ring-1 ring-orange-200";
-                                            titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-orange-700";
-                                        } else if (isPremium) {
-                                            containerClasses += " border-blue-300 bg-blue-50";
-                                            titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-blue-700";
+                                        if (isPremium) {
+                                            // PREMIUM: White Background + Orange Border + Badge
+                                            containerClasses += " bg-white";
+                                            customStyle.borderColor = "#f97316"; // Orange-500 to match badge
+                                            titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-[#004e8a]";
                                         } else if (isHighlight) {
-                                            containerClasses += " border-viva-green bg-[#f0fdf4]";
+                                            // HIGHLIGHT: Green Background #F4FFEA + Green Border #65B21C
+                                            customStyle.backgroundColor = "#F4FFEA";
+                                            customStyle.borderColor = "#65B21C";
                                             titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-green-700";
                                         } else {
-                                            containerClasses += " border-gray-200 hover:border-gray-300";
+                                            // REGULAR
+                                            containerClasses += " bg-white border-gray-200 hover:border-gray-300";
                                         }
                                     } else {
                                         // GRID VIEW STYLES (FOTOS)
@@ -648,24 +690,65 @@ export default function CategoryPage() {
                                         <article
                                             key={ad.id}
                                             className={containerClasses}
+                                            style={customStyle}
                                         >
                                             {isNew && (
                                                 <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 z-10">
                                                     NOVO
                                                 </div>
                                             )}
-                                            
-                                            <div className={`${viewMode === 'list' ? 'w-[240px] h-[180px]' : 'w-full h-[200px]'} flex-shrink-0 bg-gray-200 relative overflow-hidden rounded-sm`}>
-                                                <img
-                                                    src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
-                                                    alt={ad.title}
-                                                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                                />
-                                                <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
-                                                    <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
+
+                                            {isPremium && viewMode === 'list' && (
+                                                <div className="absolute -top-3 -right-1 bg-white text-orange-500 text-[10px] font-bold px-2 py-0.5 border border-orange-500 rounded-sm z-20 shadow-sm uppercase">
+                                                    PREMIUM
                                                 </div>
-                                            </div>
+                                            )}
+                                            
+                                            {isPremium && viewMode === 'list' ? (
+                                                <div className="flex gap-1 h-[180px] flex-shrink-0">
+                                                    {/* Main Image */}
+                                                    <div className="w-[240px] h-full relative bg-gray-200 overflow-hidden rounded-sm">
+                                                        <img
+                                                            src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                            alt={ad.title}
+                                                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                        />
+                                                        <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
+                                                            <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
+                                                        </div>
+                                                    </div>
+                                                    {/* Thumbnails */}
+                                                    <div className="flex flex-col gap-1 w-[100px] h-full">
+                                                        <div className="h-1/2 relative bg-gray-200 overflow-hidden rounded-sm">
+                                                            <img
+                                                                src={ad.images?.[1] || ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                                alt=""
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                        <div className="h-1/2 relative bg-gray-200 overflow-hidden rounded-sm">
+                                                            <img
+                                                                src={ad.images?.[2] || ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                                alt=""
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className={`${viewMode === 'list' ? 'w-[240px] h-[180px]' : 'w-full h-[200px]'} flex-shrink-0 bg-gray-200 relative overflow-hidden rounded-sm`}>
+                                                    <img
+                                                        src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                        alt={ad.title}
+                                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                    />
+                                                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
+                                                        <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             <div className="flex-1 flex flex-col justify-between min-w-0">
                                                 <div>
@@ -673,11 +756,6 @@ export default function CategoryPage() {
                                                         <h3 className={titleClasses}>
                                                             <Link to={`/anuncio/${ad.id}`} className={viewMode === 'list' ? "block truncate" : "block"}>{ad.title}</Link>
                                                         </h3>
-                                                        {(isVip || isPremium) && viewMode === 'list' && (
-                                                            <span className="bg-orange-100 text-orange-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-orange-200 uppercase whitespace-nowrap">
-                                                                {isVip ? 'VIP' : 'Premium'}
-                                                            </span>
-                                                        )}
                                                     </div>
                                                     
                                                     {/* Attributes Row */}

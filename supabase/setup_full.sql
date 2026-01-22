@@ -240,7 +240,16 @@ begin
     or p_attrs = '{}'::jsonb 
     or attributes @> p_attrs
   )
-  order by created_at desc;
+  order by
+    case
+      when lower(coalesce(attributes->>'plan_tier', '')) = 'vip'
+        and nullif(attributes->>'plan_expires_at', '')::timestamptz > now() then 2
+      when lower(coalesce(attributes->>'plan_tier', '')) = 'premium'
+        and nullif(attributes->>'plan_expires_at', '')::timestamptz > now() then 1
+      else 0
+    end desc,
+    nullif(attributes->>'plan_expires_at', '')::timestamptz desc nulls last,
+    created_at desc;
 end;
 $$;
 

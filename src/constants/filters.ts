@@ -307,24 +307,25 @@ export const CATEGORY_FILTERS = {
                 options: [
                     "Todos",
                     "Acompanhante",
-                    "Festas e Eventos",
-                    "Massagem",
-                    "Massagem Tântrica",
                     "Beijo na boca",
-                    "Striptease",
-                    "Fetiche",
-                    "Dominação",
-                    "Ativa",
+                    "Festas e Eventos",
                     "Inversão de papéis",
-                    "Passiva",
-                    "Namoradinha"
+                    "Massagem Tântrica",
+                    "Outras opções",
+                    "Striptease",
+                    "Ativa",
+                    "Dominação",
+                    "Fetiche",
+                    "Massagem",
+                    "Namoradinha",
+                    "Passiva"
                 ]
             },
             {
-                name: "Mídia",
+                name: "Locais",
                 type: "checkbox",
-                key: "has_media",
-                options: ["Com fotos", "Com vídeos", "Foto Verificada"]
+                key: "locations",
+                options: ["Local próprio", "Hotéis e Motéis", "Aceita viajar"]
             }
         ]
     },

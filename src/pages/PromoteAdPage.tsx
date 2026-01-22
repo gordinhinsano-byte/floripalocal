@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { useState, useEffect, ReactNode } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getListingById } from "@/services/listings";
+import { getListingById, updateListing } from "@/services/listings";
 import { toast } from "sonner";
 import { Check, ArrowUp, ExternalLink, Palette, Star, LayoutGrid, Sparkles } from "lucide-react";
 
@@ -23,12 +23,34 @@ export default function PromoteAdPage() {
     const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
     const [websiteUrl, setWebsiteUrl] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [durationDaysByPlan, setDurationDaysByPlan] = useState<Record<string, number>>({
+        vip: 30,
+        premium: 30
+    });
 
     const { data: ad, isLoading } = useQuery({
         queryKey: ['ad', id],
         queryFn: () => getListingById(id || ""),
         enabled: !!id
     });
+
+    useEffect(() => {
+        if (!ad) return;
+        const promotions: string[] = Array.isArray(ad.attributes?.promotions) ? ad.attributes.promotions : [];
+        setSelectedPlans(promotions);
+        if (typeof ad.attributes?.website_url === "string") {
+            setWebsiteUrl(ad.attributes.website_url);
+        }
+        const tier = typeof ad.attributes?.plan_tier === "string" ? ad.attributes.plan_tier : "";
+        const expires = typeof ad.attributes?.plan_expires_at === "string" ? ad.attributes.plan_expires_at : "";
+        if ((tier === "vip" || tier === "premium") && expires) {
+            const expMs = Date.parse(expires);
+            if (Number.isFinite(expMs) && expMs > Date.now()) {
+                const daysLeft = Math.max(1, Math.ceil((expMs - Date.now()) / (24 * 60 * 60 * 1000)));
+                setDurationDaysByPlan((prev) => ({ ...prev, [tier]: daysLeft }));
+            }
+        }
+    }, [ad]);
 
     const plans: Plan[] = [
         {
@@ -107,14 +129,45 @@ export default function PromoteAdPage() {
         .filter(p => selectedPlans.includes(p.id))
         .reduce((sum, p) => sum + p.price, 0);
 
+    const isFreeTest = false;
+    const totalDisplay = isFreeTest ? 0 : total;
+
     const handleCheckout = async () => {
         setIsSubmitting(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        toast.success("Planos ativados com sucesso! (Simulação)");
-        setIsSubmitting(false);
-        navigate('/minha-conta');
+        try {
+            if (!ad) throw new Error("Anúncio não encontrado");
+
+            const selected = selectedPlans.slice();
+            const tier = selected.includes("vip") ? "vip" : selected.includes("premium") ? "premium" : "normal";
+            const durationDays = tier === "vip"
+                ? (durationDaysByPlan.vip || 30)
+                : tier === "premium"
+                    ? (durationDaysByPlan.premium || 30)
+                    : 0;
+
+            const expiresAt = durationDays > 0
+                ? new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString()
+                : "";
+
+            const nextPromotions = Array.from(new Set(selected));
+            const nextAttributes = {
+                ...(ad.attributes || {}),
+                promotions: nextPromotions,
+                website_url: nextPromotions.includes("website_link") ? websiteUrl : "",
+                plan_tier: tier,
+                plan_expires_at: expiresAt
+            };
+
+            await updateListing(ad.id, { attributes: nextAttributes });
+
+            toast.success(isFreeTest ? "Plano ativado grátis (teste)!" : "Plano ativado!");
+            navigate("/minha-conta?tab=ads");
+        } catch (e: any) {
+            console.error(e);
+            toast.error("Erro ao ativar plano: " + (e?.message || "desconhecido"));
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (isLoading) {
@@ -186,11 +239,34 @@ export default function PromoteAdPage() {
                                 )}
 
                                 <div className="flex items-baseline gap-4">
-                                    <span className="text-sm text-gray-500">{plan.duration}</span>
+                                    <span className="text-sm text-gray-500">
+                                        {plan.id === "vip" || plan.id === "premium"
+                                            ? `${durationDaysByPlan[plan.id] || 30} dias`
+                                            : plan.duration}
+                                    </span>
                                     <span className="text-xl font-bold text-[#76bc21]">
                                         R${plan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                     </span>
                                 </div>
+
+                                {(plan.id === "vip" || plan.id === "premium") && selectedPlans.includes(plan.id) && (
+                                    <div className="mt-3">
+                                        <select
+                                            className="border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-700"
+                                            value={durationDaysByPlan[plan.id] || 30}
+                                            onChange={(e) => {
+                                                const days = Number(e.target.value);
+                                                setDurationDaysByPlan((prev) => ({ ...prev, [plan.id]: days }));
+                                            }}
+                                        >
+                                            <option value={7}>7 dias</option>
+                                            <option value={15}>15 dias</option>
+                                            <option value={30}>30 dias</option>
+                                            <option value={60}>60 dias</option>
+                                            <option value={90}>90 dias</option>
+                                        </select>
+                                    </div>
+                                )}
                             </div>
                             
                             {/* Icon/Illustration Area */}
@@ -207,7 +283,7 @@ export default function PromoteAdPage() {
                 <div className="flex flex-col items-center justify-center gap-6 border-t border-gray-300 pt-8">
                     <div className="flex justify-between w-full max-w-2xl text-xl">
                         <span className="font-bold text-gray-700">Total</span>
-                        <span className="font-bold text-gray-800">R${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        <span className="font-bold text-gray-800">R${totalDisplay.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                     </div>
                     
                     <button 
@@ -215,7 +291,7 @@ export default function PromoteAdPage() {
                         disabled={isSubmitting}
                         className="w-full max-w-2xl bg-[#ff7f00] hover:bg-[#e67300] text-white font-bold py-4 rounded text-lg shadow-sm transition-colors disabled:opacity-70"
                     >
-                        {isSubmitting ? 'Processando...' : 'Ir para minha conta'}
+                        {isSubmitting ? 'Processando...' : (isFreeTest ? 'Ativar grátis (teste)' : 'Ir para minha conta')}
                     </button>
                 </div>
 

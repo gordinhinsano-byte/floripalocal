@@ -17,6 +17,7 @@ import PostAdPage from "./pages/PostAdPage";
 import PromoteAdPage from "./pages/PromoteAdPage";
 import MinhaConta from "./pages/MinhaConta";
 import HelpPage from "./pages/HelpPage";
+import EditAdPage from "./pages/EditAdPage";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 
@@ -50,8 +51,10 @@ const App = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/esqueci-minha-senha" element={<ForgotPasswordPage />} />
             <Route path="/painel" element={<UserDashboard />} />
+            <Route path="/meus-anuncios" element={<UserDashboard />} />
             <Route path="/publicar-anuncio" element={<PostAdPage />} />
             <Route path="/anuncio/:id/promover" element={<PromoteAdPage />} />
+            <Route path="/anuncio/:id/editar" element={<EditAdPage />} />
             <Route path="/ajuda" element={<HelpPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

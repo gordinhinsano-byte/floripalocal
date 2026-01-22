@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Heart, MessageCircle, HelpCircle, User, PlusCircle } from "lucide-react";
+import { Menu, X, Heart, MessageCircle, HelpCircle, User, PlusCircle, FileText } from "lucide-react";
 
 interface HeaderProps {
   transparent?: boolean;
@@ -34,6 +34,10 @@ export const Header = ({ transparent = false }: HeaderProps) => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
+            <Link to="/meus-anuncios" className={`text-sm flex items-center gap-1.5 ${linkClass} transition-colors font-medium`}>
+              <FileText className="w-4 h-4" />
+              Meus Anúncios
+            </Link>
             <Link to="/minha-conta?tab=favorites" className={`text-sm flex items-center gap-1.5 ${linkClass} transition-colors font-medium`}>
               <Heart className="w-4 h-4" />
               Favoritos
@@ -68,6 +72,9 @@ export const Header = ({ transparent = false }: HeaderProps) => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-xl py-4 px-4 flex flex-col gap-2 z-50">
+             <Link to="/meus-anuncios" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
+               <FileText className="w-5 h-5 text-viva-green" /> Meus Anúncios
+             </Link>
              <Link to="/minha-conta?tab=favorites" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
                <Heart className="w-5 h-5 text-viva-green" /> Favoritos
              </Link>

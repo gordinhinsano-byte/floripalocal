@@ -130,6 +130,7 @@ export default function AdDetail() {
 
     // Ensure activeImage index is valid
     const safeActiveImage = activeImage < displayImages.length ? activeImage : 0;
+    const videoUrl = ad.attributes?.video_url ? String(ad.attributes.video_url) : "";
 
     const isEscortAd = Boolean(
         ad.attributes?.rate_1h ||
@@ -345,6 +346,18 @@ export default function AdDetail() {
                                     </div>
                                 )}
                             </div>
+
+                            {videoUrl && (
+                                <div className="mt-4">
+                                    <div className="aspect-video bg-black rounded-sm overflow-hidden">
+                                        <video
+                                            src={videoUrl}
+                                            controls
+                                            className="w-full h-full"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {isEscortAd ? (

@@ -110,6 +110,27 @@ export async function uploadListingImage(file: File, listingId: string): Promise
     return publicUrl;
 }
 
+export async function uploadListingVideo(file: File, listingId: string): Promise<string> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Usuário não autenticado");
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `video-${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${user.id}/${listingId}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('listing-images')
+        .upload(filePath, file, { contentType: file.type || undefined });
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+        .from('listing-images')
+        .getPublicUrl(filePath);
+
+    return publicUrl;
+}
+
 // Favorites Functions
 export async function toggleFavorite(listingId: string): Promise<boolean> {
     const { data: { user } } = await supabase.auth.getUser();

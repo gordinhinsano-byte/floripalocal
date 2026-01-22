@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { CATEGORY_FILTERS, CATEGORY_GROUP_MAP } from "@/constants/filters";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createListing, updateListing, uploadListingImage } from "@/services/listings";
+import { createListing, updateListing, uploadListingImage, uploadListingVideo } from "@/services/listings";
 import { getCategories, getCategoryBySlug } from "@/services/categories";
 import { Category } from "@/types";
 
@@ -54,11 +54,12 @@ export default function PostAdPage() {
         price: '',
         address: '',
         city: '',
-        video: ''
+        services: []
     });
     
     // Images: Local Preview and File Object
     const [imageFiles, setImageFiles] = useState<{file: File, preview: string}[]>([]);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
     const stateOptions = [
         "Acre",
         "Alagoas",
@@ -136,6 +137,7 @@ export default function PostAdPage() {
             }
         }
         if (step === 2) {
+            if (categorySlug.startsWith("acompanhantes")) return;
             if (!formData.price || !formData.userType) {
                 toast.error("Preencha os campos obrigatórios (*)");
                 return;
@@ -174,12 +176,13 @@ export default function PostAdPage() {
 
             // 2. Extract standard fields vs attributes
             const { title, description, price, state, city, userType, offerType, address, ...otherAttributes } = formData;
+            const computedPrice = categorySlug.startsWith("acompanhantes") ? Number(otherAttributes.rate_1h) : Number(price);
 
             // 3. Create Listing (Draft)
             const newListing = await createListing({
                 title,
                 description,
-                price: Number(price),
+                price: computedPrice,
                 category_id: category.id,
                 type: offerType === 'sell' ? 'produto' : 'serviço', // Simplified mapping
                 state,
@@ -204,6 +207,17 @@ export default function PostAdPage() {
 
             // 5. Update Listing with Images
             await updateListing(newListing.id, { images: uploadedUrls });
+
+            if (videoFile) {
+                try {
+                    const videoUrl = await uploadListingVideo(videoFile, newListing.id);
+                    await updateListing(newListing.id, {
+                        attributes: { ...(newListing as any).attributes, video_url: videoUrl }
+                    });
+                } catch (err) {
+                    console.error("Failed to upload video", err);
+                }
+            }
             
             setStep(3); // Go to success screen
 
@@ -218,7 +232,11 @@ export default function PostAdPage() {
     // Trigger draft creation at end of Step 2 when user clicks "Next" (which is actually "Publish" flow start)
     // But in this UI, Step 2 Next -> Step 3 (Success). So we do logic on transition 2->3
     const handleStep2Submit = () => {
-        if (!formData.price || !formData.userType) {
+        if (!formData.userType) {
+            toast.error("Preencha os campos obrigatórios (*)");
+            return;
+        }
+        if (!categorySlug.startsWith("acompanhantes") && !formData.price) {
             toast.error("Preencha os campos obrigatórios (*)");
             return;
         }
@@ -226,7 +244,7 @@ export default function PostAdPage() {
             toast.error("Preencha o Cachê (1 hora) (*)");
             return;
         }
-        if (formData.price && Number(formData.price) < 0) {
+        if (!categorySlug.startsWith("acompanhantes") && formData.price && Number(formData.price) < 0) {
             toast.error("Preço não pode ser negativo");
             return;
         }
@@ -260,12 +278,112 @@ export default function PostAdPage() {
         }
     }
 
+    const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setVideoFile(e.target.files[0]);
+        }
+    }
+
     // Dynamic Filter Renderer
     const renderDynamicFilters = () => {
         const filters = CATEGORY_FILTERS[categorySlug as keyof typeof CATEGORY_FILTERS]?.filters || [];
 
         return filters.map((filter: any, index: number) => {
             if (filter.key === 'price') return null;
+
+            if (categorySlug.startsWith("acompanhantes") && filter.key === "services" && Array.isArray(filter.options)) {
+                const options: string[] = filter.options.filter((opt: string) => opt && opt !== "Todos");
+                const selected: string[] = Array.isArray(formData.services) ? formData.services : [];
+                const toggle = (service: string, checked: boolean) => {
+                    const next = checked
+                        ? Array.from(new Set([...selected, service]))
+                        : selected.filter((s) => s !== service);
+                    updateFormData("services", next);
+                };
+
+                const col1 = options.slice(0, 7);
+                const col2 = options.slice(7);
+
+                return (
+                    <div key={index} className="col-span-1 md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                            Serviços
+                        </label>
+                        <div className="border border-gray-300 rounded bg-white p-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-2">
+                                <div className="space-y-2">
+                                    {col1.map((service) => {
+                                        const checked = selected.includes(service);
+                                        return (
+                                            <label key={service} className="flex items-center gap-2 cursor-pointer select-none">
+                                                <input
+                                                    type="checkbox"
+                                                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                                    checked={checked}
+                                                    onChange={(e) => toggle(service, e.target.checked)}
+                                                />
+                                                <span className="text-sm text-gray-700">{service}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <div className="space-y-2">
+                                    {col2.map((service) => {
+                                        const checked = selected.includes(service);
+                                        return (
+                                            <label key={service} className="flex items-center gap-2 cursor-pointer select-none">
+                                                <input
+                                                    type="checkbox"
+                                                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                                    checked={checked}
+                                                    onChange={(e) => toggle(service, e.target.checked)}
+                                                />
+                                                <span className="text-sm text-gray-700">{service}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (filter.type === "checkbox" && Array.isArray(filter.options)) {
+                const selected: string[] = Array.isArray(formData[filter.key]) ? formData[filter.key] : [];
+                const toggle = (opt: string, checked: boolean) => {
+                    const next = checked
+                        ? Array.from(new Set([...selected, opt]))
+                        : selected.filter((v) => v !== opt);
+                    updateFormData(filter.key, next);
+                };
+
+                return (
+                    <div key={index} className="col-span-1 md:col-span-2">
+                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                            {filter.name}
+                        </label>
+                        <div className="border border-gray-300 rounded bg-white p-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-2">
+                                {filter.options.map((opt: string) => {
+                                    const checked = selected.includes(opt);
+                                    return (
+                                        <label key={opt} className="flex items-center gap-2 cursor-pointer select-none">
+                                            <input
+                                                type="checkbox"
+                                                className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                                checked={checked}
+                                                onChange={(e) => toggle(opt, e.target.checked)}
+                                            />
+                                            <span className="text-sm text-gray-700">{opt}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
             const generatedRangeOptions =
                 filter.type === "range" && Array.isArray(filter.options) && filter.options.length > 0
@@ -451,32 +569,36 @@ export default function PostAdPage() {
                                     {/* Dynamic Fields */}
                                     {renderDynamicFilters()}
 
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Preço (Sem Pontuação) *</label>
-                                        <div className="relative">
-                                            <span className="absolute left-3 top-2 text-gray-500">R$</span>
-                                            <input
-                                                type="number"
-                                                min={0}
-                                                onKeyDown={preventNegativeKey}
-                                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                                                onChange={(e) => {
-                                                    const v = e.target.value;
-                                                    if (v.startsWith("-")) {
-                                                        updateFormData("price", "");
-                                                        return;
-                                                    }
-                                                    updateFormData("price", v);
-                                                }}
-                                            />
+                                    {!categorySlug.startsWith("acompanhantes") && (
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-1">Preço (Sem Pontuação) *</label>
+                                            <div className="relative">
+                                                <span className="absolute left-3 top-2 text-gray-500">R$</span>
+                                                <input
+                                                    type="number"
+                                                    min={0}
+                                                    onKeyDown={preventNegativeKey}
+                                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                    onChange={(e) => {
+                                                        const v = e.target.value;
+                                                        if (v.startsWith("-")) {
+                                                            updateFormData("price", "");
+                                                            return;
+                                                        }
+                                                        updateFormData("price", v);
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     <div className="col-span-1 md:col-span-2">
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">Endereço *</label>
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">
+                                            Endereço {!categorySlug.startsWith("acompanhantes") && <span>*</span>}
+                                        </label>
                                         <input
                                             type="text"
-                                            placeholder="Coloque rua, número e cidade. (Ex.: Av. Paulista , 1000)"
+                                            placeholder="Coloque rua, número e cidade (se quiser). (Ex.: Av. Paulista , 1000)"
                                             className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
                                             onChange={(e) => updateFormData('address', e.target.value)}
                                         />
@@ -507,9 +629,14 @@ export default function PostAdPage() {
                                         <p className="text-xs text-gray-600 mb-3">Importante: Adicione um toque pessoal no seu anúncio. Publique um vídeo de 1 minuto.</p>
 
                                         <div className="w-24 h-24 bg-gray-300 hover:bg-gray-400 transition-colors rounded-full cursor-pointer flex items-center justify-center relative mx-auto md:mx-0">
-                                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="video/*" />
+                                            <input type="file" onChange={handleVideoUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="video/*" />
                                             <Icons.Video />
                                         </div>
+                                        {videoFile && (
+                                            <div className="text-xs text-gray-500 mt-2 truncate">
+                                                Vídeo selecionado: {videoFile.name}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

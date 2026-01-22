@@ -2,13 +2,14 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Listing, Conversation, Message, Profile } from "@/types";
 import { toast } from "sonner";
 import { getMyListings, updateListing, getFavoriteListings, toggleFavorite } from "@/services/listings";
 import { getMyConversations, getMessages, sendMessage } from "@/services/messages";
+import { Eye, Edit, Mail, Phone } from "lucide-react";
 
 // Mock Data Types
 type Tab = 'overview' | 'ads' | 'chat' | 'favorites' | 'settings';
@@ -16,6 +17,8 @@ type Tab = 'overview' | 'ads' | 'chat' | 'favorites' | 'settings';
 export default function UserDashboard() {
     const [activeTab, setActiveTab] = useState<Tab>('overview');
     const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
 
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -52,6 +55,27 @@ export default function UserDashboard() {
             }
         });
     }, [navigate]);
+
+    useEffect(() => {
+        const tabParam = searchParams.get("tab");
+        const allowed: Tab[] = ["overview", "ads", "chat", "favorites", "settings"];
+
+        if (tabParam && allowed.includes(tabParam as Tab)) {
+            setActiveTab(tabParam as Tab);
+            return;
+        }
+
+        if (location.pathname === "/meus-anuncios") {
+            setActiveTab("ads");
+        }
+    }, [location.pathname, searchParams]);
+
+    const selectTab = (tab: Tab) => {
+        setActiveTab(tab);
+        const next = new URLSearchParams(searchParams);
+        next.set("tab", tab);
+        setSearchParams(next, { replace: true });
+    };
 
     // Fetch User Ads
     const { data: ads = [], refetch: refetchAds } = useQuery({
@@ -128,7 +152,7 @@ export default function UserDashboard() {
                             {menuItems.map((item) => (
                                 <button
                                     key={item.id}
-                                    onClick={() => setActiveTab(item.id as Tab)}
+                                    onClick={() => selectTab(item.id as Tab)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-colors ${activeTab === item.id
                                         ? 'bg-green-50 text-viva-green'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -150,7 +174,7 @@ export default function UserDashboard() {
 
                     {/* MAIN CONTENT */}
                     <div className="flex-1">
-                        {activeTab === 'overview' && <OverviewTab setActiveTab={setActiveTab} adsCount={ads.length} conversationsCount={conversations.length} />}
+                        {activeTab === 'overview' && <OverviewTab setActiveTab={selectTab} adsCount={ads.length} conversationsCount={conversations.length} />}
                         {activeTab === 'ads' && <MyAdsTab ads={ads} onUpdate={refetchAds} />}
                         {activeTab === 'chat' && <ChatTab conversations={conversations} currentUserId={currentUserId} />}
                         {activeTab === 'favorites' && (
@@ -313,9 +337,13 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
                                 </div>
                                 
                                 <div className="flex flex-col gap-2 justify-start">
-                                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar">
+                                    <Link
+                                        to={`/anuncio/${ad.id}/editar`}
+                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                        title="Editar"
+                                    >
                                         <Edit className="w-5 h-5" />
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
 
