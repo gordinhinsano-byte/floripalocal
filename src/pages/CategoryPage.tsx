@@ -744,11 +744,11 @@ export default function CategoryPage() {
                                                 </div>
                                             )}
 
-                                            <div className="flex-1 flex flex-col justify-between min-w-0">
+                                            <div className="flex-1 flex flex-col justify-between min-w-0 overflow-hidden">
                                                 <div>
                                                     <div className="flex justify-between items-start gap-2">
-                                                        <h3 className={titleClasses}>
-                                                            <Link to={`/anuncio/${ad.id}`} className={viewMode === 'list' ? "block truncate" : "block"}>{ad.title}</Link>
+                                                        <h3 className={`${titleClasses} truncate w-full`}>
+                                                            <Link to={`/anuncio/${ad.id}`} className={viewMode === 'list' ? "block truncate" : "block truncate"}>{ad.title}</Link>
                                                         </h3>
                                                     </div>
                                                     
