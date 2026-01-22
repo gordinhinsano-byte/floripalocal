@@ -103,6 +103,28 @@ export async function searchListings(params: SearchParams): Promise<Listing[]> {
     return data || [];
 }
 
+export async function getRecentListings(limit = 8): Promise<Listing[]> {
+    const { data, error } = await supabase
+        .from('listings')
+        .select(`
+            *,
+            profiles:owner_id (
+                name,
+                phone,
+                avatar_url
+            )
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error("Error fetching recent listings:", error);
+        return [];
+    }
+    return data || [];
+}
+
 export async function uploadListingImage(file: File, listingId: string): Promise<string> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Usuário não autenticado");
