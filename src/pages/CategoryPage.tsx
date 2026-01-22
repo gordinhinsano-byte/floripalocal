@@ -496,14 +496,6 @@ export default function CategoryPage() {
                     <div className="bg-[#eef1f3] p-4 rounded-sm border border-gray-200 mb-6">
                         {/* Top Search Row */}
                         <div className="flex flex-col md:flex-row gap-2 mb-4">
-                            <input 
-                                type="text" 
-                                placeholder="Encontre no FloripaLocal"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
-                                className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green"
-                            />
                             <div ref={categoryRef} className="relative flex-1">
                                 <button
                                     type="button"
