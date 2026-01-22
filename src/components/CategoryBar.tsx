@@ -357,42 +357,6 @@ export const categories = [
                     },
                 ],
             },
-            {
-                groups: [
-                    {
-                        title: "MAIS BUSCADAS",
-                        items: [
-                            "Acompanhantes de Luxo",
-                            "Garotas de Programa",
-                            "Garotas de Programa Florianópolis",
-                            "Garotas de Programa São José",
-                            "Garotas de Programa Palhoça",
-                            "Garotas de Programa Biguaçu",
-                            "Garotas de Programa Itapema",
-                            "Garotas de Programa Balneário Camboriú",
-                            "Garotas de Programa Joinville",
-                            "Garotas de Programa Blumenau",
-                            "Garotas de Programa Chapecó",
-                        ],
-                    },
-                ],
-            },
-            {
-                groups: [
-                    {
-                        title: "", // No title for continuation
-                        items: [
-                            "Garotas de Programa Criciúma",
-                            "Garotas de Programa Itajaí",
-                            "Garotas de Programa Lages",
-                            "Garotas de Programa Jaraguá do Sul",
-                            "Garotas de Programa Brusque",
-                            "Garotas de Programa Tubarão",
-                            "Garotas de Programa Caçador",
-                        ],
-                    },
-                ],
-            },
         ],
     },
 ];
@@ -505,26 +469,6 @@ export const CategoryBar = () => {
                                                                     "Acompanhantes": "/c/acompanhantes",
                                                                     "Acompanhantes trans": "/c/acompanhantes-trans",
                                                                     "Acompanhantes masculinos": "/c/acompanhantes-masculinos",
-
-                                                                    // SEO / Mais Buscadas Mappings
-                                                                    "Acompanhantes de Luxo": "/c/acompanhantes",
-                                                                    "Garotas de Programa": "/c/acompanhantes",
-                                                                    "Garotas de Programa Florianópolis": "/c/acompanhantes",
-                                                                    "Garotas de Programa São José": "/c/acompanhantes",
-                                                                    "Garotas de Programa Palhoça": "/c/acompanhantes",
-                                                                    "Garotas de Programa Biguaçu": "/c/acompanhantes",
-                                                                    "Garotas de Programa Itapema": "/c/acompanhantes",
-                                                                    "Garotas de Programa Balneário Camboriú": "/c/acompanhantes",
-                                                                    "Garotas de Programa Joinville": "/c/acompanhantes",
-                                                                    "Garotas de Programa Blumenau": "/c/acompanhantes",
-                                                                    "Garotas de Programa Chapecó": "/c/acompanhantes",
-                                                                    "Garotas de Programa Criciúma": "/c/acompanhantes",
-                                                                    "Garotas de Programa Itajaí": "/c/acompanhantes",
-                                                                    "Garotas de Programa Lages": "/c/acompanhantes",
-                                                                    "Garotas de Programa Jaraguá do Sul": "/c/acompanhantes",
-                                                                    "Garotas de Programa Brusque": "/c/acompanhantes",
-                                                                    "Garotas de Programa Tubarão": "/c/acompanhantes",
-                                                                    "Garotas de Programa Caçador": "/c/acompanhantes",
                                                                 };
 
                                                                 const route = categoryRoutes[item];
