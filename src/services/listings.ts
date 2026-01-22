@@ -24,12 +24,12 @@ export async function deleteListing(id: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Usuário não autenticado");
 
-    // RLS policies should prevent deleting other users' listings
+    // Soft delete: update status to 'deleted'
     const { error } = await supabase
         .from('listings')
-        .delete()
+        .update({ status: 'deleted' })
         .eq('id', id)
-        .eq('owner_id', user.id); // Extra safety
+        .eq('owner_id', user.id);
 
     if (error) throw error;
     return true;
@@ -61,7 +61,8 @@ export async function getListingById(id: string): Promise<Listing | null> {
         .eq('id', id)
         .single();
 
-    if (error) return null;
+    if (error || !data) return null;
+    if (data.status === 'deleted') return null; // Hide deleted listings
     return data;
 }
 
@@ -73,6 +74,7 @@ export async function getMyListings(): Promise<Listing[]> {
         .from('listings')
         .select('*')
         .eq('owner_id', user.id)
+        .neq('status', 'deleted') // Filter out soft-deleted listings
         .order('created_at', { ascending: false });
 
     if (error) throw error;
