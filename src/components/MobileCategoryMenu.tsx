@@ -106,6 +106,15 @@ const categoryRoutes: Record<string, string> = {
     "Acompanhantes masculinos": "/c/acompanhantes-masculinos",
 };
 
+const generateSlug = (text: string) => {
+    return text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+};
+
 export const MobileCategoryMenu = () => {
     return (
         <div className="w-full bg-white md:hidden border-t border-gray-200">
@@ -139,7 +148,7 @@ export const MobileCategoryMenu = () => {
                                                      {group.title && <h4 className="font-bold text-xs text-gray-400 uppercase mb-2 mt-2 tracking-wider">{group.title}</h4>}
                                                      <ul className="space-y-3">
                                                         {group.items.map(item => {
-                                                            const route = categoryRoutes[item] || `/c/todas?q=${encodeURIComponent(item)}`;
+                                                            const route = categoryRoutes[item] || `/c/${generateSlug(item)}`;
                                                             return (
                                                                 <li key={item}>
                                                                     <Link 

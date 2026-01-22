@@ -188,10 +188,24 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
 
     // Filter client-side to avoid RPC/Syntax issues with complex NOT IN queries
     const filtered = (data || []).filter(ad => {
-        // If category_id is missing, we show it (safe default)
-        if (!ad.category_id) return true;
-        // Check if category is in adult list
-        return !ADULT_CATEGORIES.includes(ad.category_id);
+        // Safe access to category_id
+        const catId = (ad.category_id || '').toLowerCase();
+        
+        // 1. Check Category ID
+        if (ADULT_CATEGORIES.some(adult => catId === adult || catId.includes(adult))) {
+            return false;
+        }
+
+        // 2. Extra safety: Check Title for adult keywords
+        // This prevents ads that might be miscategorized or have vague category IDs from appearing
+        const title = (ad.title || '').toLowerCase();
+        const forbiddenWords = ['acompanhante', 'sexo', 'massagem erótica', 'massagem erotica', 'garota de programa', 'gp', 'trans', 'travesti'];
+        
+        if (forbiddenWords.some(word => title.includes(word))) {
+            return false;
+        }
+
+        return true;
     });
 
     return filtered.slice(0, limit);
