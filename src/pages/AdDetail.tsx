@@ -139,14 +139,17 @@ export default function AdDetail() {
     const safeActiveImage = activeImage < displayImages.length ? activeImage : 0;
     const videoUrl = ad.attributes?.video_url ? String(ad.attributes.video_url) : "";
 
-    const isEscortAd = Boolean(
-        ad.attributes?.rate_1h ||
-        ad.attributes?.rate_30m ||
-        ad.attributes?.rate_2h ||
-        ad.attributes?.ethnicity ||
-        ad.attributes?.services ||
-        ad.attributes?.age
-    );
+    const isEscortAd = (() => {
+        const catSlug = (ad as any).categories?.slug || "";
+        return [
+            "acompanhantes",
+            "acompanhantes-trans",
+            "acompanhantes-masculinos",
+            "encontros",
+            "namoro",
+            "relacionamentos"
+        ].some(key => catSlug.includes(key));
+    })();
 
     const escortServiceColumns: string[][] = [
         [

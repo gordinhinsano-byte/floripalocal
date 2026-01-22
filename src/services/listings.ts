@@ -56,6 +56,10 @@ export async function getListingById(id: string): Promise<Listing | null> {
                 name,
                 phone,
                 avatar_url
+            ),
+            categories:category_id (
+                slug,
+                name
             )
         `)
         .eq('id', id)
