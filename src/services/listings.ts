@@ -111,6 +111,7 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
         'encontros'
     ];
 
+    // Fetch a bit more than limit to account for client-side filtering
     const { data, error } = await supabase
         .from('listings')
         .select(`
@@ -122,15 +123,23 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
             )
         `)
         .eq('status', 'active')
-        .not('category_id', 'in', `(${ADULT_CATEGORIES.map(c => `"${c}"`).join(',')})`) // Supabase syntax for NOT IN with list
         .order('created_at', { ascending: false })
-        .limit(limit);
+        .limit(limit * 2);
 
     if (error) {
         console.error("Error fetching recent listings:", error);
         return [];
     }
-    return data || [];
+
+    // Filter client-side to avoid RPC/Syntax issues with complex NOT IN queries
+    const filtered = (data || []).filter(ad => {
+        // If category_id is missing, we show it (safe default)
+        if (!ad.category_id) return true;
+        // Check if category is in adult list
+        return !ADULT_CATEGORIES.includes(ad.category_id);
+    });
+
+    return filtered.slice(0, limit);
 }
 
 export async function uploadListingImage(file: File, listingId: string): Promise<string> {
