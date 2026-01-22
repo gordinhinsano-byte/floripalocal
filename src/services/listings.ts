@@ -20,6 +20,21 @@ export async function createListing(listing: Partial<Listing>) {
     return data;
 }
 
+export async function deleteListing(id: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Usuário não autenticado");
+
+    // RLS policies should prevent deleting other users' listings
+    const { error } = await supabase
+        .from('listings')
+        .delete()
+        .eq('id', id)
+        .eq('owner_id', user.id); // Extra safety
+
+    if (error) throw error;
+    return true;
+}
+
 export async function updateListing(id: string, updates: Partial<Listing>) {
     const { data, error } = await supabase
         .from('listings')

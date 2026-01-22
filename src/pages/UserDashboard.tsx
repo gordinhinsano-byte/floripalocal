@@ -7,9 +7,9 @@ import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Listing, Conversation, Message, Profile } from "@/types";
 import { toast } from "sonner";
-import { getMyListings, updateListing, getFavoriteListings, toggleFavorite } from "@/services/listings";
+import { getMyListings, updateListing, getFavoriteListings, toggleFavorite, deleteListing } from "@/services/listings";
 import { getMyConversations, getMessages, sendMessage } from "@/services/messages";
-import { Eye, Edit, Mail, Phone, ExternalLink } from "lucide-react";
+import { Eye, Edit, Mail, Phone, ExternalLink, Trash2 } from "lucide-react";
 
 type Tab = 'overview' | 'ads' | 'chat' | 'favorites' | 'settings';
 
@@ -288,6 +288,19 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
         }
     }
 
+    const handleDelete = async (adId: string) => {
+        if (confirm("Tem certeza que deseja excluir este anúncio? Esta ação não pode ser desfeita.")) {
+            try {
+                await deleteListing(adId);
+                toast.success("Anúncio excluído com sucesso");
+                onUpdate();
+            } catch (error) {
+                console.error(error);
+                toast.error("Erro ao excluir anúncio");
+            }
+        }
+    };
+
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-6">
@@ -357,6 +370,13 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
                                     >
                                         <Edit className="w-5 h-5" />
                                     </Link>
+                                    <button
+                                        onClick={() => handleDelete(ad.id)}
+                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                        title="Excluir Anúncio"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </button>
                                 </div>
                             </div>
 
