@@ -827,8 +827,14 @@ export default function CategoryPage() {
                         {isLoading ? (
                             <div className="col-span-full text-center py-10 text-gray-500">Carregando anúncios...</div>
                         ) : regularAds.length === 0 && vipAds.length === 0 ? (
-                            <div className="col-span-full text-center py-10 bg-white rounded shadow-sm border border-gray-200">
+                            <div className="col-span-full text-center py-12 bg-white rounded shadow-sm border border-gray-200 flex flex-col items-center justify-center gap-4">
                                 <p className="text-gray-500 text-lg">Nenhum anúncio encontrado nesta categoria.</p>
+                                <button 
+                                    onClick={clearFilters}
+                                    className="px-6 py-2 bg-[#76bc21] hover:bg-[#6aa61e] text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
+                                >
+                                    Ver todos os anúncios
+                                </button>
                             </div>
                         ) : (
                             regularAds.map((ad: any) => {
