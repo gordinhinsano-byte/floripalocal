@@ -188,7 +188,9 @@ export default function CategoryPage() {
 
     const handleCategorySelect = (newSlug: string) => {
         const newParams = new URLSearchParams();
-        if (searchTerm) newParams.set("q", searchTerm);
+        // Clear search term when switching categories via dropdown to avoid redundant ?q=...
+        // if (searchTerm) newParams.set("q", searchTerm); 
+        
         if (selectedState && selectedState !== "TODO BRASIL") newParams.set("state", selectedState);
         const query = newParams.toString();
         navigate(query ? `/c/${newSlug}?${query}` : `/c/${newSlug}`);
