@@ -10,7 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 
 
-const categories = [
+export const categories = [
     {
         name: "Imóveis",
         columns: [

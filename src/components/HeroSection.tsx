@@ -1,6 +1,7 @@
 import { Search, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { CategoryBar } from "@/components/CategoryBar";
+import { MobileCategoryMenu } from "@/components/MobileCategoryMenu";
 import { useNavigate } from "react-router-dom";
 import { CATEGORY_FILTERS, CATEGORY_GROUP_MAP } from "@/constants/filters";
 
@@ -157,13 +158,14 @@ export const HeroSection = () => {
   };
 
   return (
+    <>
     <section
-      className="relative flex flex-col justify-center"
+      className="relative flex flex-col justify-center h-[320px] md:h-[460px]"
       style={{
         backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/bannerhero.webp')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        height: '460px'
+        // height: '460px' // Removed fixed height inline style to allow responsive classes
       }}
     >
       <div className="container mx-auto px-4">
@@ -251,9 +253,12 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="hidden md:block absolute bottom-0 left-0 right-0">
         <CategoryBar />
       </div>
     </section>
+    
+    <MobileCategoryMenu />
+    </>
   );
 };
