@@ -1,4 +1,4 @@
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, PlusCircle } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { CategoryBar } from "@/components/CategoryBar";
 import { MobileCategoryMenu } from "@/components/MobileCategoryMenu";
@@ -160,7 +160,7 @@ export const HeroSection = () => {
   return (
     <>
     <section
-      className="relative flex flex-col justify-center h-[320px] md:h-[460px]"
+      className="relative flex flex-col justify-center min-h-[380px] md:h-[460px] pb-12 md:pb-0"
       style={{
         backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/bannerhero.webp')`,
         backgroundSize: 'cover',
@@ -169,7 +169,7 @@ export const HeroSection = () => {
       }}
     >
       <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto text-center pt-16 md:pt-0">
+        <div className="max-w-2xl mx-auto text-center pt-28 md:pt-0">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">
             Anúncios Classificados Grátis
           </h1>
@@ -249,6 +249,15 @@ export const HeroSection = () => {
             >
               <Search className="w-5 h-5" />
               <span>Buscar</span>
+            </button>
+
+            {/* Mobile: Post Ad Button (Between Search and Categories) */}
+            <button 
+                onClick={() => navigate('/publicar-anuncio')}
+                className="md:hidden bg-[#ff7f00] hover:bg-[#e67300] text-white px-8 py-3 flex items-center justify-center gap-2 transition-colors font-medium border-t border-white/20"
+            >
+              <PlusCircle className="w-5 h-5" />
+              <span>Inserir Anúncio</span>
             </button>
           </div>
         </div>

@@ -33,7 +33,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
           {/* Logo - Centered on Mobile if Transparent (Home), otherwise Left */}
           <Link 
             to="/" 
-            className={`flex items-center ${transparent ? 'absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0' : ''}`}
+            className={`flex items-center ${transparent ? 'absolute left-1/2 -translate-x-1/2 top-2 md:static md:translate-x-0 md:top-auto' : ''}`}
           >
             {/* Using a standard height for the logo */}
             <img
