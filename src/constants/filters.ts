@@ -301,6 +301,12 @@ export const CATEGORY_FILTERS = {
                 options: ["Todos", "Mulher", "Homem", "Casal", "Travesti"]
             },
             {
+                name: "Idiomas",
+                type: "checkbox",
+                key: "languages",
+                options: ["Português", "Inglês", "Espanhol", "Francês", "Italiano", "Alemão"]
+            },
+            {
                 name: "Tipo físico",
                 type: "select",
                 key: "ethnicity",
@@ -846,6 +852,7 @@ export const CATEGORY_FILTERS = {
             { name: "Idade", type: "select", key: "age", options: Array.from({ length: 43 }, (_, i) => (18 + i).toString()) },
             { name: "Eu sou", type: "select", key: "gender", options: ["Mulher", "Homem", "Travesti"] },
             { name: "Atendo", type: "select", key: "attends", options: ["Todos", "Mulher", "Homem", "Casal", "Travesti"] },
+            { name: "Idiomas", type: "checkbox", key: "languages", options: ["Português", "Inglês", "Espanhol", "Francês", "Italiano", "Alemão"] },
             { name: "Cachê (30 minutos)", type: "price", key: "rate_30m" },
             { name: "Cachê (1 hora)", type: "price", key: "rate_1h" },
             { name: "Cachê (2 horas)", type: "price", key: "rate_2h" },
@@ -858,6 +865,7 @@ export const CATEGORY_FILTERS = {
             { name: "Idade", type: "select", key: "age", options: Array.from({ length: 43 }, (_, i) => (18 + i).toString()) },
             { name: "Eu sou", type: "select", key: "gender", options: ["Mulher", "Homem", "Travesti"] },
             { name: "Atendo", type: "select", key: "attends", options: ["Todos", "Mulher", "Homem", "Casal", "Travesti"] },
+            { name: "Idiomas", type: "checkbox", key: "languages", options: ["Português", "Inglês", "Espanhol", "Francês", "Italiano", "Alemão"] },
             { name: "Cachê (30 minutos)", type: "price", key: "rate_30m" },
             { name: "Cachê (1 hora)", type: "price", key: "rate_1h" },
             { name: "Cachê (2 horas)", type: "price", key: "rate_2h" },
