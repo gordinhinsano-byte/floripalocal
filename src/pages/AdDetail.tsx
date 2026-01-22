@@ -538,9 +538,6 @@ export default function AdDetail() {
                             {/* Info Bar (ID, User Since, Visits) - Moved here */}
                             <div className="flex flex-wrap gap-8 text-xs text-gray-500 pt-4 border-t border-gray-100">
                                 <div className="font-bold">
-                                    ID <span className="font-normal">{ad.id.slice(0, 8).toUpperCase()}</span>
-                                </div>
-                                <div className="font-bold">
                                     Usuário desde <span className="font-normal">{ad.profiles?.created_at ? new Date(ad.profiles.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</span>
                                 </div>
                                 <div className="font-bold">

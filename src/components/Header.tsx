@@ -21,16 +21,22 @@ export const Header = ({ transparent = false }: HeaderProps) => {
   return (
     <header className={`${transparent ? 'absolute top-0 left-0 right-0 z-50 bg-transparent border-none' : 'bg-white border-b border-border'} transition-all`}>
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center">
+        <div className="flex items-center justify-between py-4 relative">
+          {/* Logo - Centered on Mobile if Transparent (Home), otherwise Left */}
+          <Link 
+            to="/" 
+            className={`flex items-center ${transparent ? 'absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0' : ''}`}
+          >
             {/* Using a standard height for the logo */}
             <img
               src={logoSrc}
               alt="FloripaLocal"
-              className="h-20 sm:h-24 md:h-24 w-auto max-h-none object-contain block"
+              className="h-16 sm:h-20 md:h-24 w-auto max-h-none object-contain block"
             />
           </Link>
+
+          {/* Spacer for Flex layout when logo is absolute to keep menu button right */}
+          <div className={`hidden md:block ${transparent ? 'flex-1' : ''}`}></div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
@@ -60,9 +66,9 @@ export const Header = ({ transparent = false }: HeaderProps) => {
             </Link>
           </nav>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button - Always Right */}
           <button 
-            className={`md:hidden ${transparent ? 'text-white' : 'text-viva-gray'}`}
+            className={`md:hidden ml-auto ${transparent ? 'text-white' : 'text-viva-gray'}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}

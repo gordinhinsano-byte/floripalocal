@@ -169,7 +169,7 @@ export const HeroSection = () => {
       }}
     >
       <div className="container mx-auto px-4">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-2xl mx-auto text-center pt-16 md:pt-0">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">
             Anúncios Classificados Grátis
           </h1>

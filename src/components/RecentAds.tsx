@@ -47,12 +47,6 @@ export const RecentAds = () => {
                     alt={ad.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
-                    {ad.category_id && (
-                        <span className="absolute top-2 left-2 bg-gray-900/80 text-white text-[10px] px-2 py-0.5 rounded">
-                        {/* We might need a map for category IDs to names if not populated, but for now just showing if we had it */}
-                        {ad.category_id.split('-')[0].toUpperCase()} 
-                        </span>
-                    )}
                 </div>
                 <div className="p-3">
                     <h3 className="font-medium text-sm text-gray-800 line-clamp-2 mb-1.5 hover:text-viva-green transition-colors leading-tight h-9">
