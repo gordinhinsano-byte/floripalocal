@@ -61,12 +61,13 @@ export default function RegisterPage() {
                 toast.error("Você precisa aceitar os termos.");
                 return;
             }
+            // Skip verification step (Step 3) for now
+            setStep(4);
+            return;
         }
-        if (step === 3 && formData.verificationCode.join("").length !== 4) {
-            // For now, allow any code since we are not sending real OTPs yet in this flow
-            // toast.error("Digite o código de verificação.");
-            // return;
-        }
+        
+        // Step 3 is skipped
+        
         if (step === 4) {
             if (!formData.firstName || !formData.lastName || !formData.username || !formData.phone || !formData.password) {
                 toast.error("Preencha todos os campos.");
