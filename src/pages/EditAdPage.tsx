@@ -21,6 +21,11 @@ type FilterDefinition = {
     subfilters?: Array<{ name: string; type: string; options: string[] }>;
 };
 
+import { uploadListingImage } from "@/services/listingImages";
+import { X, Upload, Plus } from "lucide-react";
+
+// ... (existing imports)
+
 export default function EditAdPage() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -40,6 +45,15 @@ export default function EditAdPage() {
         services: [],
         locations: []
     });
+
+    const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [newImages, setNewImages] = useState<File[]>([]);
+    const [previews, setPreviews] = useState<string[]>([]);
+    const [videoUrl, setVideoUrl] = useState("");
+    
+    // Video Upload State
+    const [newVideoFile, setNewVideoFile] = useState<File | null>(null);
+    const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
     const preventNegativeKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "-" || e.key === "e" || e.key === "E") e.preventDefault();
@@ -76,6 +90,9 @@ export default function EditAdPage() {
                 setCategorySlug(slug);
 
                 const attrs = ad.attributes || {};
+                setExistingImages(Array.isArray(ad.images) ? ad.images : []);
+                setVideoUrl(attrs.video_url || "");
+
                 setFormData({
                     ...attrs,
                     title: ad.title || "",
@@ -255,10 +272,70 @@ export default function EditAdPage() {
         );
     };
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            setNewImages((prev) => [...prev, ...files]);
+            
+            // Create previews
+            const newPreviews = files.map(file => URL.createObjectURL(file));
+            setPreviews((prev) => [...prev, ...newPreviews]);
+        }
+    };
+
+    const removeExistingImage = (index: number) => {
+        setExistingImages((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const removeNewImage = (index: number) => {
+        setNewImages((prev) => prev.filter((_, i) => i !== index));
+        setPreviews((prev) => {
+            const urlToRemove = prev[index];
+            URL.revokeObjectURL(urlToRemove); // Clean up memory
+            return prev.filter((_, i) => i !== index);
+        });
+    };
+
+    const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            // Validate size/type if needed
+            if (file.size > 50 * 1024 * 1024) { // 50MB limit example
+                toast.error("O vídeo deve ter no máximo 50MB.");
+                return;
+            }
+            setNewVideoFile(file);
+            setVideoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const removeVideo = () => {
+        setVideoUrl("");
+        setNewVideoFile(null);
+        if (videoPreview) URL.revokeObjectURL(videoPreview);
+        setVideoPreview(null);
+    };
+
     const handleSave = async () => {
         if (!listing) return;
         setSaving(true);
         try {
+            // 1. Upload new images
+            const uploadedUrls = await Promise.all(
+                newImages.map(file => uploadListingImage(listing.id, file))
+            );
+            
+            // 2. Upload Video if exists
+            let finalVideoUrl = videoUrl;
+            if (newVideoFile) {
+                // Upload video using the same helper (it returns public URL)
+                // Note: Ensure bucket allows video mime types
+                finalVideoUrl = await uploadListingImage(listing.id, newVideoFile);
+            }
+
+            // 3. Combine images
+            const finalImages = [...existingImages, ...uploadedUrls];
+
             const { title, description, state, city, userType, price, address, ...otherAttributes } = formData;
 
             const computedPrice = isEscortCategory ? Number(otherAttributes.rate_1h) : Number(price);
@@ -276,7 +353,13 @@ export default function EditAdPage() {
                 state: String(state || ""),
                 city: nextCity,
                 price: computedPrice,
-                attributes: { ...otherAttributes, userType, address: nextAddress }
+                images: finalImages, // Add images
+                attributes: { 
+                    ...otherAttributes, 
+                    userType, 
+                    address: nextAddress,
+                    video_url: finalVideoUrl // Add video
+                }
             });
 
             toast.success("Anúncio atualizado!");
@@ -288,6 +371,7 @@ export default function EditAdPage() {
             setSaving(false);
         }
     };
+
 
     if (loading) {
         return (
@@ -312,7 +396,7 @@ export default function EditAdPage() {
             <main className="flex-1 container mx-auto px-4 py-8">
                 <div className="max-w-[960px] mx-auto bg-white rounded shadow-sm border border-gray-200 overflow-hidden">
                     <div className="bg-[#e6e6e6] px-6 py-3 border-b border-gray-300 flex justify-between items-center">
-                        <h1 className="font-bold text-gray-700 text-lg">Editar anúncio</h1>
+                        <h1 className="font-bold text-gray-700 text-lg">Editar Anúncio (Com Fotos)</h1>
                         <div className="font-bold text-gray-700 text-sm">{categorySlug || "categoria"}</div>
                     </div>
 
@@ -336,6 +420,101 @@ export default function EditAdPage() {
                                     onChange={(e) => updateFormData("description", e.target.value)}
                                     className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors resize-y"
                                 />
+                            </div>
+
+                            {/* MEDIA SECTION */}
+                            <div className="col-span-1 md:col-span-2 border-t border-gray-200 pt-6 mt-2">
+                                <h3 className="text-lg font-bold text-gray-800 mb-4">Fotos e Vídeo</h3>
+                                
+                                {/* Images Grid */}
+                                <div className="mb-6">
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Fotos do Anúncio</label>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                        {/* Existing Images */}
+                                        {existingImages.map((url, index) => (
+                                            <div key={`existing-${index}`} className="relative aspect-square bg-gray-100 rounded border border-gray-200 group overflow-hidden">
+                                                <img src={url} alt="" className="w-full h-full object-cover" />
+                                                <button
+                                                    onClick={() => removeExistingImage(index)}
+                                                    className="absolute top-1 right-1 bg-black/50 hover:bg-red-600 text-white rounded-full p-1 shadow-sm transition-colors"
+                                                    title="Remover foto"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        {/* New Images Previews */}
+                                        {previews.map((url, index) => (
+                                            <div key={`new-${index}`} className="relative aspect-square bg-gray-100 rounded border border-gray-200 group overflow-hidden">
+                                                <img src={url} alt="" className="w-full h-full object-cover" />
+                                                <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-[10px] text-center py-0.5">Nova</div>
+                                                <button
+                                                    onClick={() => removeNewImage(index)}
+                                                    className="absolute top-1 right-1 bg-black/50 hover:bg-red-600 text-white rounded-full p-1 shadow-sm transition-colors"
+                                                    title="Remover foto"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+
+                                        {/* Upload Button */}
+                                        <label className="relative aspect-square bg-gray-50 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 hover:border-orange-400 transition-colors">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                className="hidden"
+                                                onChange={handleImageSelect}
+                                            />
+                                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                            <span className="text-xs text-gray-500 font-medium">Adicionar Fotos</span>
+                                        </label>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-2">Formatos aceitos: JPG, PNG. Máximo 5MB por foto.</p>
+                                </div>
+
+                                {/* Video Upload Section */}
+                                    <div className="mt-6">
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Vídeo do Anúncio (Opcional)</label>
+                                        
+                                        {videoUrl || videoPreview ? (
+                                            <div className="relative w-full max-w-[200px] aspect-square bg-black rounded overflow-hidden border border-gray-200 group">
+                                                <video 
+                                                    src={videoPreview || videoUrl} 
+                                                    className="w-full h-full object-cover"
+                                                    controls
+                                                />
+                                                <button
+                                                    onClick={removeVideo}
+                                                    className="absolute top-1 right-1 bg-black/50 hover:bg-red-600 text-white rounded-full p-1 shadow-sm transition-colors z-10"
+                                                    title="Remover vídeo"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                                {newVideoFile && (
+                                                     <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-[10px] text-center py-0.5">Novo Vídeo</div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <label className="relative w-full max-w-[200px] aspect-square bg-gray-50 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 hover:border-orange-400 transition-colors">
+                                                <input
+                                                    type="file"
+                                                    accept="video/*"
+                                                    className="hidden"
+                                                    onChange={handleVideoSelect}
+                                                />
+                                                <div className="p-3 bg-orange-100 rounded-full mb-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <span className="text-xs text-gray-500 font-medium">Adicionar Vídeo</span>
+                                                <span className="text-[10px] text-gray-400 mt-1">(Max 50MB)</span>
+                                            </label>
+                                        )}
+                                    </div>
                             </div>
 
                             <div>

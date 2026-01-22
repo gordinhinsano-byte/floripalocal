@@ -295,7 +295,7 @@ export default function AdDetail() {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-500 mb-4">
-                                <span>Publicado por <a href="#" className="text-[#f90] hover:underline font-bold">{publisherName}</a> em: {new Date(ad.created_at).toLocaleDateString()}</span>
+                                <span>{new Date(ad.created_at).toLocaleDateString()}</span>
                                 <span className="hidden sm:inline">-</span>
                                 <span>{locationStr}</span>
                             </div>
