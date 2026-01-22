@@ -656,27 +656,21 @@ export default function CategoryPage() {
                                     const customStyle: React.CSSProperties = {};
                                     
                                     if (viewMode === 'list') {
-                                        // LIST VIEW STYLES
-                                        // Base container - Responsive: flex-col on mobile, flex-row on md+
-                                        containerClasses = "border p-4 flex flex-col md:flex-row gap-4 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm";
-                                        titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-[#004e8a]";
+                                        // LIST VIEW STYLES - Mobile: Image left, content right
+                                        containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300";
+                                        titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-[#004e8a] leading-tight";
                                         
                                         if (isPremium) {
-                                            // PREMIUM: White Background + Orange Border + Badge
-                                            containerClasses += " bg-white";
-                                            customStyle.borderColor = "#f97316"; // Orange-500 to match badge
-                                            titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-[#004e8a]";
+                                            // PREMIUM
+                                            customStyle.borderColor = "#f97316";
                                         } else if (isHighlight) {
-                                            // HIGHLIGHT: Green Background #F4FFEA + Green Border #65B21C
+                                            // HIGHLIGHT
                                             customStyle.backgroundColor = "#F4FFEA";
                                             customStyle.borderColor = "#65B21C";
-                                            titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-green-700";
-                                        } else {
-                                            // REGULAR
-                                            containerClasses += " bg-white border-gray-200 hover:border-gray-300";
+                                            titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-green-700 leading-tight";
                                         }
                                     } else {
-                                        // GRID VIEW STYLES (FOTOS)
+                                        // GRID VIEW STYLES
                                         containerClasses = "bg-white border border-gray-200 p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm h-full";
                                         titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-[#004e8a] line-clamp-2";
                                     }
@@ -699,119 +693,67 @@ export default function CategoryPage() {
                                                 </div>
                                             )}
                                             
-                                            {isPremium && viewMode === 'list' ? (
-                                                <div className="flex gap-1 h-[180px] w-full md:w-auto flex-shrink-0">
-                                                    {/* Main Image */}
-                                                    <div className="w-full md:w-[240px] h-full relative bg-gray-200 overflow-hidden rounded-sm">
-                                                        <img
-                                                            src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
-                                                            alt={ad.title}
-                                                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                                        />
-                                                        <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
-                                                            <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
+                                            {viewMode === 'list' ? (
+                                                // LIST VIEW LAYOUT
+                                                <>
+                                                    {/* Top Section: Image + Info */}
+                                                    <div className="flex gap-3">
+                                                        {/* Image */}
+                                                        <div className="w-[120px] h-[120px] md:w-[160px] md:h-[120px] flex-shrink-0 relative bg-gray-200 overflow-hidden rounded-sm border border-gray-200">
+                                                            <img
+                                                                src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                                alt={ad.title}
+                                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                            />
+                                                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
+                                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
+                                                                <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Right Info */}
+                                                        <div className="flex-1 min-w-0 flex flex-col">
+                                                            <h3 className={titleClasses}>
+                                                                <Link to={`/anuncio/${ad.id}`} className="block truncate">{ad.title}</Link>
+                                                            </h3>
+                                                            
+                                                            <div className="text-xs text-gray-500 mb-1">
+                                                                {ad.attributes?.age ? `${ad.attributes.age} anos • ` : ''} {ad.city} {ad.state}
+                                                            </div>
+                                                            
+                                                            <div className="flex items-center gap-1 text-gray-500 text-xs mb-2">
+                                                                <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/></svg>
+                                                                <span className="truncate">{ad.city}</span>
+                                                            </div>
+
+                                                            {ad.price && (
+                                                                <div className="mt-auto">
+                                                                     <span className="inline-block border border-gray-300 rounded px-2 py-0.5 text-xs font-bold text-gray-700 bg-white shadow-sm">
+                                                                        Cachê: R${ad.price.toLocaleString('pt-BR')}
+                                                                     </span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
-                                                    {/* Thumbnails - Hidden on mobile for space */}
-                                                    <div className="hidden md:flex flex-col gap-1 w-[100px] h-full">
-                                                        <div className="h-1/2 relative bg-gray-200 overflow-hidden rounded-sm">
-                                                            <img
-                                                                src={ad.images?.[1] || ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
-                                                                alt=""
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                        <div className="h-1/2 relative bg-gray-200 overflow-hidden rounded-sm">
-                                                            <img
-                                                                src={ad.images?.[2] || ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
-                                                                alt=""
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
+
+                                                    {/* Description (Full Width Below) */}
+                                                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed border-t border-gray-100 pt-2 mt-1">
+                                                        {ad.description}
+                                                    </p>
+                                                    
+                                                    {/* Bottom Actions (Heart) */}
+                                                    <div className="absolute bottom-3 right-3">
+                                                        <button 
+                                                            onClick={(e) => handleToggleFavorite(e, ad.id)}
+                                                            className={`transition-colors p-1.5 rounded-full border bg-white hover:bg-gray-50 shadow-sm ${isFavorited ? 'border-red-200 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500'}`}
+                                                        >
+                                                            <svg className="w-5 h-5" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                                            </svg>
+                                                        </button>
                                                     </div>
-                                                </div>
+                                                </>
                                             ) : (
-                                                <div className={`${viewMode === 'list' ? 'w-full h-[200px] md:w-[240px] md:h-[180px]' : 'w-full h-[200px]'} flex-shrink-0 bg-gray-200 relative overflow-hidden rounded-sm`}>
-                                                    <img
-                                                        src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
-                                                        alt={ad.title}
-                                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                                    />
-                                                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
-                                                        <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            <div className="flex-1 flex flex-col justify-between min-w-0 overflow-hidden">
-                                                <div>
-                                                    <div className="flex justify-between items-start gap-2">
-                                                        <h3 className={`${titleClasses} truncate w-full`}>
-                                                            <Link to={`/anuncio/${ad.id}`} className={viewMode === 'list' ? "block truncate" : "block truncate"}>{ad.title}</Link>
-                                                        </h3>
-                                                    </div>
-                                                    
-                                                    {/* Attributes Row */}
-                                                    <div className="text-xs text-gray-500 mb-2 flex items-center gap-1 flex-wrap">
-                                                        {ad.attributes?.rooms && <span>{ad.attributes.rooms} Dormitório(s)</span>}
-                                                        {ad.attributes?.rooms && <span>•</span>}
-                                                        <span>{ad.attributes?.advertiser_type || 'Particular'}</span>
-                                                        {viewMode === 'list' && (
-                                                            <>
-                                                                <span>•</span>
-                                                                <span>{ad.city} {ad.state}</span>
-                                                            </>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Price */}
-                                                    {ad.price && (
-                                                        <div className={`font-bold text-xl mb-2 ${isHighlight ? 'text-[#76bc21]' : 'text-[#76bc21]'}`}>
-                                                            R${ad.price.toLocaleString('pt-BR')}
-                                                        </div>
-                                                    )}
-
-                                                    {viewMode === 'list' && (
-                                                        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                                                            {ad.description}
-                                                        </p>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex justify-between items-end mt-2">
-                                                    {viewMode === 'list' ? (
-                                                        <div className="flex items-center gap-1 text-gray-400 text-xs">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/></svg>
-                                                            {ad.category_id === 'imoveis' ? 'Casas a venda' : 'Classificados'}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-1 text-gray-400 text-xs truncate max-w-[150px]">
-                                                            <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/></svg>
-                                                            {ad.city}
-                                                        </div>
-                                                    )}
-                                                    
-                                                    <button 
-                                                        onClick={(e) => handleToggleFavorite(e, ad.id)}
-                                                        className={`transition-colors p-1 rounded-full hover:bg-gray-100 ${isFavorited ? 'text-red-500' : 'text-gray-400 hover:text-red-500'}`}
-                                                    >
-                                                        <svg className="w-6 h-6" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </article>
-                                    );
-                                })
-                            
-                        )}
-                    </div>
-                    
-                    {/* Pagination */}
-                    <div className="flex justify-center mt-8 gap-1">
                         <button className="bg-[#76bc21] text-white font-bold w-8 h-8 flex items-center justify-center rounded-sm text-sm">1</button>
                         <button className="bg-white border border-gray-300 text-gray-600 font-bold w-8 h-8 flex items-center justify-center rounded-sm hover:bg-gray-50 text-sm">»</button>
                     </div>
