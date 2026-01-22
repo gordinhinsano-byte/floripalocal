@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { createListing, updateListing, uploadListingImage, uploadListingVideo } from "@/services/listings";
 import { getCategories, getCategoryBySlug } from "@/services/categories";
 import { Category } from "@/types";
+import { supabase } from "@/lib/supabaseClient";
 
 // Official FloripaLocal Icons from Source
 const Icons = {
@@ -91,6 +92,14 @@ export default function PostAdPage() {
     ];
 
     useEffect(() => {
+        // Check Auth
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            if (!user) {
+                toast.error("Faça login para publicar um anúncio");
+                navigate("/login?redirectTo=/publicar-anuncio");
+            }
+        });
+
         // Load categories from DB
         getCategories().then(setDbCategories).catch(console.error);
     }, []);

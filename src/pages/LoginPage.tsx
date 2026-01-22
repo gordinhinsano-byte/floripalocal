@@ -1,13 +1,16 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
 import { login } from "@/services/auth";
 
 export default function LoginPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(false);
+    
+    const redirectTo = searchParams.get("redirectTo") || "/minha-conta";
 
     // Form States
     const [email, setEmail] = useState("");
@@ -39,7 +42,7 @@ export default function LoginPage() {
             await login(email, password);
 
             toast.success("Login realizado com sucesso!");
-            navigate("/minha-conta");
+            navigate(redirectTo);
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Erro ao fazer login. Verifique suas credenciais.");
