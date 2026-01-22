@@ -198,15 +198,24 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
 
         // 2. Extra safety: Check Title for adult keywords
         // This prevents ads that might be miscategorized or have vague category IDs from appearing
-        const title = (ad.title || '').toLowerCase();
-        const forbiddenWords = ['acompanhante', 'sexo', 'massagem erótica', 'massagem erotica', 'garota de programa', 'gp', 'trans', 'travesti'];
-        
-        if (forbiddenWords.some(word => title.includes(word))) {
-            return false;
-        }
-
-        return true;
-    });
+         const title = (ad.title || '').toLowerCase();
+         const description = (ad.description || '').toLowerCase(); // Check description too
+         const forbiddenWords = [
+            'acompanhante', 'acompanhantes', 
+            'sexo', 'sexual', 
+            'massagem erótica', 'massagem erotica', 'massagem tântrica', 'massagem tantrica',
+            'garota de programa', 'garotas de programa', 'gp', 
+            'trans', 'travesti', 'shemale', 'ts',
+            'oral', 'anal', 'dotada', 'ativo', 'passivo', // Context dependent but safe to block on home
+            'sigilo', 'liberal'
+         ];
+         
+         if (forbiddenWords.some(word => title.includes(word) || description.includes(word))) {
+             return false;
+         }
+ 
+         return true;
+     });
 
     return filtered.slice(0, limit);
 }

@@ -124,6 +124,7 @@ export default function CategoryPage() {
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const categoryRef = useRef<HTMLDivElement>(null);
     const [showAllLocations, setShowAllLocations] = useState(false);
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
 
     const states = useMemo(() => ([
         "TODO BRASIL",

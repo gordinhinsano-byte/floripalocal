@@ -7,7 +7,7 @@ import { ptBR } from "date-fns/locale";
 
 export const RecentAds = () => {
   const { data: ads = [], isLoading } = useQuery({
-    queryKey: ['recent_ads'],
+    queryKey: ['recent_ads_v2'], // Bump version to flush cache
     queryFn: () => getRecentListings(8)
   });
 
