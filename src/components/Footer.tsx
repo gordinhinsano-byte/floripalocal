@@ -1,119 +1,121 @@
+import { Link } from "react-router-dom";
+
 const footerSections = [
   {
     title: "IMÓVEIS",
     links: [
-      "Apartamentos - Casas venda",
-      "Alugar casas - Apartamentos",
-      "Aluguel temporada",
-      "Troca de casas",
-      "Empreendimentos Imóveis",
-      "Dividir apartamento",
-      "Terrenos - Lotes",
-      "Estacionamentos",
+      { label: "Apartamentos - Casas venda", slug: "comprar-imovel" },
+      { label: "Alugar casas - Apartamentos", slug: "alugar-casa-apartamento" },
+      { label: "Aluguel temporada", slug: "aluguel-temporada" },
+      { label: "Troca de casas", slug: "troca-de-imoveis" },
+      { label: "Empreendimentos Imóveis", slug: "lancamentos-imobiliarios" },
+      { label: "Dividir apartamento", slug: "aluguel-quarto" },
+      { label: "Terrenos - Lotes", slug: "terrenos-venda" },
+      { label: "Estacionamentos", slug: "garagens-venda" },
     ],
   },
   {
     title: "IMÓVEIS EXTERIOR",
     links: [
-      "Casas venda exterior",
-      "Aluguel temporada exterior",
+      { label: "Casas venda exterior", slug: "imoveis-exterior" },
+      { label: "Aluguel temporada exterior", slug: "aluguel-temporada-exterior" },
     ],
   },
   {
     title: "EMPREGOS",
     links: [
-      "Vagas de emprego",
-      "Estágios - Trainee",
-      "Anunciar currículo",
-      "Trabalhos domésticos",
+      { label: "Vagas de emprego", slug: "vagas-emprego" },
+      { label: "Estágios - Trainee", slug: "estagios-trainee" },
+      { label: "Anunciar currículo", slug: "curriculos" },
+      { label: "Trabalhos domésticos", slug: "servicos-domesticos" },
     ],
   },
   {
     title: "VEÍCULOS",
     links: [
-      "Carros usados",
-      "Motos usadas",
-      "Caminhões usados",
-      "Ônibus usados",
-      "Lanchas - Barcos",
-      "Aluguel carros",
-      "Acessórios e serviços",
+      { label: "Carros usados", slug: "carros-usados" },
+      { label: "Motos usadas", slug: "motos-scooters" },
+      { label: "Caminhões usados", slug: "caminhoes-comerciais" },
+      { label: "Ônibus usados", slug: "onibus-venda" },
+      { label: "Lanchas - Barcos", slug: "barcos-lanchas" },
+      { label: "Aluguel carros", slug: "aluguel-carros" },
+      { label: "Acessórios e serviços", slug: "pecas-acessorios" },
     ],
   },
   {
     title: "AGRONEGÓCIOS",
     links: [
-      "Animais do campo",
-      "Alimentação pecuária",
-      "Produtos rurais",
-      "Maquinária agrícola",
-      "Serviços agropecuários",
-      "Fazendas - Sítios",
+      { label: "Animais do campo", slug: "animais-campo" },
+      { label: "Alimentação pecuária", slug: "alimentacao-pecuaria" },
+      { label: "Produtos rurais", slug: "produtos-rurais" },
+      { label: "Maquinária agrícola", slug: "maquinaria-agricola" },
+      { label: "Serviços agropecuários", slug: "servicos-agropecuarios" },
+      { label: "Fazendas - Sítios", slug: "fazendas-sitios" },
     ],
   },
   {
     title: "ANIMAIS",
     links: [
-      "Animais à venda",
-      "Adoção de animais",
-      "Veterinários",
-      "Serviços - Acessórios",
+      { label: "Animais à venda", slug: "animais-estimacao-venda" },
+      { label: "Adoção de animais", slug: "adocao-animais" },
+      { label: "Veterinários", slug: "servicos-animais" },
+      { label: "Serviços - Acessórios", slug: "servicos-animais" },
     ],
   },
   {
     title: "RELACIONAMENTOS",
     links: [
-      "Procurar Amigos",
-      "Procurar Amor",
-      "Relações Gays - Lésbicas",
-      "Encontros Casuais",
-      "Acompanhantes",
+      { label: "Procurar Amigos", slug: "amizade" },
+      { label: "Procurar Amor", slug: "namoro" },
+      { label: "Relações Gays - Lésbicas", slug: "encontros" },
+      { label: "Encontros Casuais", slug: "encontros" },
+      { label: "Acompanhantes", slug: "acompanhantes" },
     ],
   },
   {
     title: "SERVIÇOS",
     links: [
-      "Serviços turismo",
-      "Traduções",
-      "Serviços de informática",
-      "Mudanças - Frete",
-      "Profissionais liberais",
-      "Reparo - Conserto",
-      "Bem-Estar - Saúde",
-      "Outros serviços",
+      { label: "Serviços turismo", slug: "turismo" },
+      { label: "Traduções", slug: "traducoes" },
+      { label: "Serviços de informática", slug: "servicos-informatica" },
+      { label: "Mudanças - Frete", slug: "mudancas-fretes" },
+      { label: "Profissionais liberais", slug: "profissionais-liberais" },
+      { label: "Reparo - Conserto", slug: "reformas-manutencao" },
+      { label: "Bem-Estar - Saúde", slug: "saude-beleza" },
+      { label: "Outros serviços", slug: "outros-servicos" },
     ],
   },
   {
     title: "COMUNIDADE",
     links: [
-      "Artistas - Músicos",
-      "Guia restaurantes",
-      "Receitas culinárias",
-      "Contatos perdidos",
-      "Atividades locais",
-      "Eventos",
+      { label: "Artistas - Músicos", slug: "artistas-musicos" },
+      { label: "Guia restaurantes", slug: "guia-restaurantes" },
+      { label: "Receitas culinárias", slug: "receitas-culinarias" },
+      { label: "Contatos perdidos", slug: "contatos-perdidos" },
+      { label: "Atividades locais", slug: "atividades-locais" },
+      { label: "Eventos", slug: "eventos" },
     ],
   },
   {
     title: "COMPRA E VENDA",
     links: [
-      "Artigos para casa",
-      "Lazer e entretenimento",
-      "Artigos eletrônicos",
-      "Moda e acessórios",
-      "Diversos",
+      { label: "Artigos para casa", slug: "moveis-decoracao" },
+      { label: "Lazer e entretenimento", slug: "esportes-lazer" },
+      { label: "Artigos eletrônicos", slug: "celulares-acessorios" },
+      { label: "Moda e acessórios", slug: "roupas-calcados" },
+      { label: "Diversos", slug: "outros-produtos" },
     ],
   },
   {
     title: "CURSOS",
     links: [
-      "Cursos de idiomas",
-      "Cursos de informática",
-      "Capacitação profissional",
-      "Professores particulares",
-      "Aulas de ginástica",
-      "Aulas música - Dança",
-      "Outros cursos",
+      { label: "Cursos de idiomas", slug: "cursos-idiomas" },
+      { label: "Cursos de informática", slug: "cursos-informatica" },
+      { label: "Capacitação profissional", slug: "cursos-profissionalizantes" },
+      { label: "Professores particulares", slug: "aulas-particulares" },
+      { label: "Aulas de ginástica", slug: "esportes-danca" },
+      { label: "Aulas música - Dança", slug: "musica-teatro" },
+      { label: "Outros cursos", slug: "outros-cursos" },
     ],
   },
 ];
@@ -143,10 +145,13 @@ export const Footer = () => {
               <h4 className="font-bold text-xs mb-3 text-viva-green">{section.title}</h4>
               <ul className="space-y-1">
                 {section.links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-[11px] text-gray-400 hover:text-white transition-colors leading-tight block">
-                      {link}
-                    </a>
+                  <li key={link.slug + link.label}>
+                    <Link 
+                      to={`/c/${link.slug}`} 
+                      className="text-[11px] text-gray-400 hover:text-white transition-colors leading-tight block"
+                    >
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -163,21 +168,20 @@ export const Footer = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
             <div className="flex items-center">
-              <span className="text-lg font-bold">
-                <span className="text-viva-green">floripa</span>
-                <span className="text-white">local</span>
-              </span>
+              <Link to="/">
+                <img src="/logoflb.svg" alt="FloripaLocal" className="h-12 w-auto object-contain" />
+              </Link>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-[11px] text-gray-400">
               <a href="#" className="hover:text-white transition-colors">Quem somos</a>
-              <a href="#" className="hover:text-white transition-colors">Termos de Uso</a>
-              <a href="#" className="hover:text-white transition-colors">Política de Privacidade</a>
+              <Link to="/termos-de-uso" className="hover:text-white transition-colors">Termos de Uso</Link>
+              <Link to="/politica-de-privacidade" className="hover:text-white transition-colors">Política de Privacidade</Link>
               <a href="#" className="hover:text-white transition-colors">Política de Cookies</a>
               <a href="#" className="hover:text-white transition-colors">Contato</a>
-              <a href="#" className="hover:text-white transition-colors">Ajuda</a>
+              <Link to="/ajuda" className="hover:text-white transition-colors">Ajuda</Link>
             </div>
             <p className="text-[11px] text-gray-500">
-              © 2024 FloripaLocal
+              © 2026 FloripaLocal
             </p>
           </div>
         </div>

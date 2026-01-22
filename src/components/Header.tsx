@@ -1,6 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X, Heart, MessageCircle, HelpCircle, User, PlusCircle, FileText } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getUnreadSummary } from "@/services/messages";
 
 interface HeaderProps {
   transparent?: boolean;
@@ -17,6 +19,12 @@ export const Header = ({ transparent = false }: HeaderProps) => {
   const linkClass = transparent 
     ? 'text-white hover:text-gray-200' 
     : 'text-viva-gray hover:text-viva-dark';
+
+  const { data: unread } = useQuery({
+    queryKey: ['unread_summary'],
+    queryFn: () => getUnreadSummary(),
+    refetchInterval: 15000
+  });
 
   return (
     <header className={`${transparent ? 'absolute top-0 left-0 right-0 z-50 bg-transparent border-none' : 'bg-white border-b border-border'} transition-all`}>
@@ -48,9 +56,16 @@ export const Header = ({ transparent = false }: HeaderProps) => {
               <Heart className="w-4 h-4" />
               Favoritos
             </Link>
-            <Link to="/minha-conta?tab=chat" className={`text-sm flex items-center gap-1.5 ${linkClass} transition-colors font-medium`}>
-              <MessageCircle className="w-4 h-4" />
-              Mensagens
+            <Link to="/minha-conta?tab=chat" className={`text-sm flex items-center gap-2 ${linkClass} transition-colors font-medium`}>
+              <span className="relative inline-flex items-center">
+                <MessageCircle className="w-5 h-5" />
+                {unread && unread.total > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] leading-none font-bold rounded-full min-w-[16px] h-[16px] grid place-items-center ring-2 ring-white">
+                    {unread.total}
+                  </span>
+                )}
+              </span>
+              <span>Mensagens</span>
             </Link>
             <Link to="/ajuda" className={`text-sm flex items-center gap-1.5 ${linkClass} transition-colors font-medium`}>
               <HelpCircle className="w-4 h-4" />
@@ -84,9 +99,22 @@ export const Header = ({ transparent = false }: HeaderProps) => {
              <Link to="/minha-conta?tab=favorites" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
                <Heart className="w-5 h-5 text-viva-green" /> Favoritos
              </Link>
-             <Link to="/minha-conta?tab=chat" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
-               <MessageCircle className="w-5 h-5 text-viva-green" /> Mensagens
-             </Link>
+            <Link to="/minha-conta?tab=chat" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
+              <span className="relative inline-flex items-center">
+                <MessageCircle className="w-5 h-5 text-viva-green" />
+                {unread && unread.total > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] leading-none font-bold rounded-full min-w-[16px] h-[16px] grid place-items-center ring-2 ring-white">
+                    {unread.total}
+                  </span>
+                )}
+              </span>
+              <span>Mensagens</span>
+              {unread && unread.total > 0 && (
+                <span className="ml-auto bg-red-600 text-white text-[11px] font-bold rounded-full min-w-[18px] h-[18px] grid place-items-center px-2 ring-2 ring-white">
+                  {unread.total}
+                </span>
+              )}
+            </Link>
              <Link to="/ajuda" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
                <HelpCircle className="w-5 h-5 text-viva-green" /> Ajuda
              </Link>

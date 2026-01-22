@@ -485,6 +485,9 @@ export default function EditAdPage() {
                                                     src={videoPreview || videoUrl} 
                                                     className="w-full h-full object-cover"
                                                     controls
+                                                    preload="metadata"
+                                                    playsInline
+                                                    crossOrigin="anonymous"
                                                 />
                                                 <button
                                                     onClick={removeVideo}
@@ -584,4 +587,3 @@ export default function EditAdPage() {
         </div>
     );
 }
-

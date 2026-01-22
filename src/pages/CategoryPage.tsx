@@ -89,15 +89,41 @@ export default function CategoryPage() {
     // Prepare Filters UI
     const staticFilters = CATEGORY_FILTERS[cleanSlug as keyof typeof CATEGORY_FILTERS]?.filters || [];
 
+    // Helper for parsing prices (BR format support)
+    const parsePrice = (value: any) => {
+        if (value === undefined || value === null || value === '') return NaN;
+        if (typeof value === 'number') return value;
+        
+        let str = String(value).trim();
+        
+        // Handle BR format: 1.234,56
+        if (str.includes(',')) {
+            // Remove thousands separator (.) and replace decimal separator (,) with (.)
+            str = str.replace(/\./g, '').replace(',', '.');
+        } else {
+            // If no comma, assume any dots are thousands separators (BR standard)
+            // e.g. "1.200" -> 1200
+            str = str.replace(/\./g, '');
+        }
+        
+        return parseFloat(str);
+    };
+
     // Parse URL Params to SearchParams
     const attrs: Record<string, any> = {};
     const city = searchParams.get("city") || undefined;
-    const priceMin = searchParams.get("priceMin") ? Number(searchParams.get("priceMin")) : undefined;
-    const priceMax = searchParams.get("priceMax") ? Number(searchParams.get("priceMax")) : undefined;
+    
+    // Robust extraction for Min/Max Price (handles both camelCase and snake_case keys + parsing)
+    const paramPriceMin = searchParams.get("priceMin") || searchParams.get("price_min");
+    const paramPriceMax = searchParams.get("priceMax") || searchParams.get("price_max");
+    const priceMin = paramPriceMin ? parsePrice(paramPriceMin) : undefined;
+    const priceMax = paramPriceMax ? parsePrice(paramPriceMax) : undefined;
+
     const advertiserType = searchParams.get("advertiserType") || undefined;
     const searchTermQuery = searchParams.get("q") || "";
     const stateQuery = searchParams.get("state") || "";
     const hasPhotosParam = searchParams.get("has_photos");
+    const sortParam = searchParams.get("sort") || "recent";
 
     const normalizeText = (value: string) =>
         value
@@ -198,11 +224,30 @@ export default function CategoryPage() {
     };
 
     // Extract dynamic attributes
+    const checkboxDefs = staticFilters.filter((f: any) => f?.type === 'checkbox');
+    const checkboxKeys = new Set<string>(checkboxDefs.map((f: any) => f.key));
+    const checkboxAccum: Record<string, string[]> = {};
     for (const [k, v] of searchParams.entries()) {
-        if (!['city', 'priceMin', 'priceMax', 'advertiserType', 'q', 'loc', 'state', 'has_photos'].includes(k)) {
-            attrs[k] = v;
+        if (['city', 'priceMin', 'priceMax', 'advertiserType', 'q', 'loc', 'state', 'has_photos', 'sort'].includes(k)) continue;
+        
+        // Skip range filter keys (min/max) as they are handled separately
+        if (k.endsWith('_min') || k.endsWith('_max')) continue;
+
+        const match = k.match(/^(.+?)_(.+)$/);
+        if (match && checkboxKeys.has(match[1])) {
+            const base = match[1];
+            const opt = match[2];
+            if (v === 'true') {
+                if (!checkboxAccum[base]) checkboxAccum[base] = [];
+                checkboxAccum[base].push(opt);
+            }
+            continue;
         }
+        attrs[k] = v;
     }
+    Object.entries(checkboxAccum).forEach(([base, arr]) => {
+        if (arr.length > 0) attrs[base] = arr;
+    });
 
     // Add advertiserType to attributes query if present
     if (advertiserType) {
@@ -277,6 +322,38 @@ export default function CategoryPage() {
             .trim();
     };
 
+    const relatedSearches = useMemo(() => {
+        const map: Record<string, string[]> = {
+            "comprar-imovel": ["Apartamento a Venda", "Casa a Venda", "Kitnet a Venda", "Loft a Venda", "Condominio a Venda", "Sobrado a Venda", "Duplex a Venda", "Triplex a Venda"],
+            "alugar-casa-apartamento": ["Apartamento para Alugar", "Casa para Alugar", "Kitnet para Alugar", "Quarto para Alugar", "Studio para Alugar"],
+            "carros-usados": ["Fiat Uno", "Volkswagen Gol", "Chevrolet Onix", "Hyundai HB20", "Toyota Corolla", "Honda Civic", "Ford Ka", "Fiat Strada", "Caminhonete", "SUV"],
+            "motos-scooters": ["Honda CG", "Honda Biz", "Yamaha Fazer", "Honda XRE", "Yamaha MT", "Scooter", "Harley Davidson", "BMW"],
+            "acompanhantes": ["Iniciante", "Loira", "Morena", "Ruiva", "Mignon", "Plus Size", "Massagem", "Namoradinha", "Universitária", "Coroa"],
+            "acompanhantes-trans": ["Ativa", "Passiva", "Versátil", "Dotada", "Iniciante", "Massagem", "Loira", "Morena"],
+            "acompanhantes-masculinos": ["Ativo", "Passivo", "Versátil", "Massagem", "Sigilo", "Dotado"],
+            "vagas-emprego": ["Vendedor", "Motorista", "Recepcionista", "Atendente", "Auxiliar Administrativo", "Home Office", "Cozinheiro", "Limpeza", "Segurança"],
+            "celulares-acessorios": ["iPhone 13", "iPhone 14", "Samsung Galaxy", "Xiaomi", "Motorola", "Carregador", "Fone de Ouvido", "Smartwatch"],
+            "moveis-decoracao": ["Sofá", "Mesa", "Cadeira", "Armário", "Cama Box", "Guarda-Roupa", "Rack", "Escrivaninha"],
+            "eletrodomesticos": ["Geladeira", "Fogão", "Máquina de Lavar", "Microondas", "Ar Condicionado", "TV", "Aspirador"],
+            "animais-estimacao-venda": ["Cachorro", "Gato", "Filhote", "Bulldog", "Shih Tzu", "Golden Retriever", "Persa", "Siames"],
+        };
+
+        if (map[cleanSlug]) return map[cleanSlug];
+
+        // Fallback by Group
+        const group = CATEGORY_GROUP_MAP[cleanSlug];
+        if (group === "Veículos") return ["Carros Baratos", "Motos", "Caminhões", "Peças Automotivas", "Pneus", "Som Automotivo"];
+        if (group === "Imóveis") return ["Apartamentos", "Casas", "Aluguel", "Terrenos", "Sítios", "Lançamentos"];
+        if (group === "Relacionamento") return ["Acompanhantes", "Massagem", "Encontros", "Namoro"];
+        if (group === "Empregos") return ["Vagas Urgentes", "Sem Experiência", "Estágio", "Meio Período", "Fim de Semana"];
+        if (group === "Animais estimação") return ["Cachorros", "Gatos", "Adoção", "Ração", "Acessórios Pet"];
+        if (group === "Multimédia & Eletrónicos") return ["Celulares", "Notebooks", "Videogames", "TVs", "Câmeras"];
+        if (group === "Para a sua casa") return ["Móveis", "Eletrodomésticos", "Decoração", "Jardinagem", "Ferramentas"];
+        if (group === "Moda e beleza") return ["Roupas Femininas", "Roupas Masculinas", "Calçados", "Bolsas", "Relógios", "Perfumes"];
+
+        return ["Ofertas", "Promoções", "Novidades", "Destaques", "Mais Procurados"];
+    }, [cleanSlug]);
+
     const applyLocation = (locationLabel: string) => {
         const normalized = normalizeLocationLabel(locationLabel);
         setSelectedState(normalized);
@@ -319,29 +396,67 @@ export default function CategoryPage() {
             if (!ad.images || ad.images.length === 0) return false;
         }
 
-        // Room Filter Logic
-        if (ad.attributes?.rooms) {
-            const adRooms = parseInt(ad.attributes.rooms);
-            const rMin = searchParams.get("rooms_min");
-            const rMax = searchParams.get("rooms_max");
-            
-            if (rMin && !isNaN(parseInt(rMin))) {
-                if (adRooms < parseInt(rMin)) return false;
-            }
-            if (rMax && !isNaN(parseInt(rMax))) {
-                if (rMax !== 'Ilimitado' && adRooms > parseInt(rMax)) return false;
+        // Generic attribute range filters: *_min / *_max
+        for (const [k, v] of searchParams.entries()) {
+            const mMin = k.match(/^(.+)_min$/);
+            const mMax = k.match(/^(.+)_max$/);
+            if (mMin || mMax) {
+                const base = (mMin ? mMin[1] : (mMax ? mMax[1] : '')).trim();
+                const rateKeys = new Set(['rate_30m', 'rate_1h', 'rate_2h']);
+                let raw = ad.attributes?.[base];
+                
+                if (base === 'price') {
+                    raw = ad.price;
+                } else if ((raw === undefined || raw === null) && rateKeys.has(base)) {
+                    raw = ad.price;
+                }
+                
+                // Use parsePrice for robust BR number parsing (1.200,00 -> 1200.00; 50.000 -> 50000)
+                const adVal = parsePrice(raw);
+
+                if (!Number.isFinite(adVal)) {
+                    // if ad doesn't have numeric value for this range, exclude
+                    return false;
+                }
+                if (mMin) {
+                    const minVal = parsePrice(v);
+                    if (Number.isFinite(minVal) && adVal < minVal) return false;
+                }
+                if (mMax) {
+                    if (String(v) !== 'Ilimitado') {
+                        const maxVal = parsePrice(v);
+                        if (Number.isFinite(maxVal) && adVal > maxVal) return false;
+                    }
+                }
             }
         }
 
         return true;
     });
 
-    // Split into VIP and Regular ads
+    // Sort then split into VIP and Regular ads
     const { vipAds, regularAds } = useMemo(() => {
         const vip: any[] = [];
-        const regular: any[] = [];
+        let regular: any[] = [];
 
-        allFilteredAds.forEach((ad: any) => {
+        // Apply sorting
+        const sorted = [...allFilteredAds].sort((a: any, b: any) => {
+            if (sortParam === "price_asc") {
+                const pa = parsePrice(a.price || 0);
+                const pb = parsePrice(b.price || 0);
+                return pa - pb;
+            }
+            if (sortParam === "price_desc") {
+                const pa = parsePrice(a.price || 0);
+                const pb = parsePrice(b.price || 0);
+                return pb - pa;
+            }
+            const ta = new Date(a.created_at || 0).getTime();
+            const tb = new Date(b.created_at || 0).getTime();
+            return (Number.isFinite(tb) ? tb : 0) - (Number.isFinite(ta) ? ta : 0);
+        });
+
+        sorted.forEach((ad: any) => {
             const promotions = ad.attributes?.promotions || [];
             const planTier = (ad.attributes?.plan_tier ? String(ad.attributes.plan_tier).toLowerCase() : "");
             const planExpiresAt = ad.attributes?.plan_expires_at ? Date.parse(String(ad.attributes.plan_expires_at)) : NaN;
@@ -351,16 +466,17 @@ export default function CategoryPage() {
             if (isVip) {
                 vip.push(ad);
             }
+            // VIPs are also included in regular list to ensure they appear in sorted results
             regular.push(ad);
         });
 
         return { vipAds: vip, regularAds: regular };
-    }, [allFilteredAds]);
+    }, [allFilteredAds, sortParam]);
 
     const handleFilterChange = (newValues: any) => {
         const newParams = new URLSearchParams(searchParams);
         Object.entries(newValues).forEach(([key, value]) => {
-            if (value) {
+            if (value !== "" && value !== null && value !== undefined) {
                 newParams.set(key, String(value));
             } else {
                 newParams.delete(key);
@@ -639,22 +755,24 @@ export default function CategoryPage() {
                                 <div className="h-[3px] bg-viva-green w-full mt-1"></div>
                             </h1>
                             
-                            <div className="flex gap-4 text-sm text-gray-500 font-medium">
-                                <button 
-                                    onClick={() => toggleAdvertiserType('private')}
-                                    className={`transition-colors hover:text-gray-900 ${advertiserType === 'private' ? 'text-[#76bc21] font-bold underline' : ''}`}
-                                >
-                                    {privateAdvertiserLabel}
-                                </button>
-                                {professionalAdvertiserLabel && (
+                            {!isAdultCategory && (
+                                <div className="flex gap-4 text-sm text-gray-500 font-medium">
                                     <button 
-                                        onClick={() => toggleAdvertiserType('professional')}
-                                        className={`transition-colors hover:text-gray-900 ${advertiserType === 'professional' ? 'text-[#76bc21] font-bold underline' : ''}`}
+                                        onClick={() => toggleAdvertiserType('private')}
+                                        className={`transition-colors hover:text-gray-900 ${advertiserType === 'private' ? 'text-[#76bc21] font-bold underline' : ''}`}
                                     >
-                                        {professionalAdvertiserLabel}
+                                        {privateAdvertiserLabel}
                                     </button>
-                                )}
-                            </div>
+                                    {professionalAdvertiserLabel && (
+                                        <button 
+                                            onClick={() => toggleAdvertiserType('professional')}
+                                            className={`transition-colors hover:text-gray-900 ${advertiserType === 'professional' ? 'text-[#76bc21] font-bold underline' : ''}`}
+                                        >
+                                            {professionalAdvertiserLabel}
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex items-center gap-3 mt-4 md:mt-0">
@@ -676,10 +794,18 @@ export default function CategoryPage() {
                              </div>
                              
                              <div className="flex items-center gap-2">
-                                <select className="border border-gray-300 rounded px-2 py-1.5 text-xs text-gray-600 bg-white">
-                                    <option>Ordenar: Mais recentes</option>
-                                    <option>Preço: Menor para Maior</option>
-                                    <option>Preço: Maior para Menor</option>
+                                <select
+                                    value={sortParam}
+                                    onChange={(e) => {
+                                        const next = new URLSearchParams(searchParams);
+                                        next.set("sort", e.target.value);
+                                        setSearchParams(next);
+                                    }}
+                                    className="border border-gray-300 rounded px-2 py-1.5 text-xs text-gray-600 bg-white"
+                                >
+                                    <option value="recent">Ordenar: Mais recentes</option>
+                                    <option value="price_asc">Preço: Menor para Maior</option>
+                                    <option value="price_desc">Preço: Maior para Menor</option>
                                 </select>
                              </div>
                         </div>
@@ -729,20 +855,24 @@ export default function CategoryPage() {
                                         // LIST VIEW STYLES - Mobile: Image left, content right
                                         containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300";
                                         titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-[#004e8a] leading-tight";
-                                        
-                                        if (isPremium) {
-                                            // PREMIUM
-                                            customStyle.borderColor = "#f97316";
-                                        } else if (isHighlight) {
-                                            // HIGHLIGHT
-                                            customStyle.backgroundColor = "#F4FFEA";
-                                            customStyle.borderColor = "#65B21C";
-                                            titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-green-700 leading-tight";
-                                        }
                                     } else {
                                         // GRID VIEW STYLES
-                                        containerClasses = "bg-white border border-gray-200 p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm h-full";
+                                        containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300 h-full";
                                         titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-[#004e8a] line-clamp-2";
+                                    }
+
+                                    if (isPremium) {
+                                        // PREMIUM
+                                        customStyle.borderColor = "#f97316";
+                                    } else if (isHighlight) {
+                                        // HIGHLIGHT
+                                        customStyle.backgroundColor = "#F4FFEA";
+                                        customStyle.borderColor = "#65B21C";
+                                        if (viewMode === 'list') {
+                                            titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-green-700 leading-tight";
+                                        } else {
+                                            titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-green-700 line-clamp-2";
+                                        }
                                     }
 
                                     return (
@@ -757,7 +887,7 @@ export default function CategoryPage() {
                                                 </div>
                                             )}
 
-                                            {isPremium && viewMode === 'list' && (
+                                            {isPremium && (
                                                 <div className="absolute -top-3 -right-1 bg-white text-orange-500 text-[10px] font-bold px-2 py-0.5 border border-orange-500 rounded-sm z-20 shadow-sm uppercase">
                                                     PREMIUM
                                                 </div>
@@ -799,7 +929,7 @@ export default function CategoryPage() {
                                                             {ad.price && (
                                                                 <div className="mt-auto">
                                                                      <span className="inline-block border border-gray-300 rounded px-2 py-0.5 text-xs font-bold text-gray-700 bg-white shadow-sm">
-                                                                        Cachê: R${ad.price.toLocaleString('pt-BR')}
+                                                                        {isAdultCategory ? "Cachê" : "Valor"}: R${ad.price.toLocaleString('pt-BR')}
                                                                      </span>
                                                                 </div>
                                                             )}
@@ -824,20 +954,47 @@ export default function CategoryPage() {
                                                     </div>
                                                 </>
                                             ) : (
-                                                <div className="flex-1 min-w-0 flex flex-col justify-between">
-                                                    {/* Grid View Content */}
-                                                    <div>
-                                                        <h3 className={titleClasses}>
-                                                            <Link to={`/anuncio/${ad.id}`} className="block truncate">{ad.title}</Link>
-                                                        </h3>
-                                                        <div className="text-xs text-gray-500 mt-1">
-                                                            {ad.city}
+                                                // GRID VIEW LAYOUT
+                                                <div className="flex-1 min-w-0 flex flex-col h-full">
+                                                    {/* Image */}
+                                                    <div className="w-full aspect-[4/3] bg-gray-200 overflow-hidden rounded-sm border border-gray-200 mb-2 relative">
+                                                        <img
+                                                            src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                            alt={ad.title}
+                                                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                        />
+                                                        <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
+                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
+                                                            <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
                                                         </div>
-                                                        {ad.price && (
-                                                            <div className="font-bold text-lg text-[#76bc21] mt-1">
+                                                    </div>
+
+                                                    <h3 className={titleClasses}>
+                                                        <Link to={`/anuncio/${ad.id}`} className="block">{ad.title}</Link>
+                                                    </h3>
+                                                    
+                                                    <div className="text-xs text-gray-500 mt-1 mb-2">
+                                                        {ad.city}
+                                                    </div>
+                                                    
+                                                    {ad.price && (
+                                                        <div className="mt-auto pt-2 border-t border-gray-100">
+                                                            <div className="font-bold text-lg text-[#76bc21]">
                                                                 R${ad.price.toLocaleString('pt-BR')}
                                                             </div>
-                                                        )}
+                                                        </div>
+                                                    )}
+                                                    
+                                                    {/* Heart Action */}
+                                                    <div className="absolute bottom-3 right-3">
+                                                        <button 
+                                                            onClick={(e) => handleToggleFavorite(e, ad.id)}
+                                                            className={`transition-colors p-1.5 rounded-full border bg-white hover:bg-gray-50 shadow-sm ${isFavorited ? 'border-red-200 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500'}`}
+                                                        >
+                                                            <svg className="w-4 h-4" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                                            </svg>
+                                                        </button>
                                                     </div>
                                                 </div>
                                             )}
@@ -859,7 +1016,7 @@ export default function CategoryPage() {
                         <div className="bg-white border border-gray-200 p-4 rounded-sm">
                             <h3 className="font-bold text-gray-800 mb-3 text-sm">Buscas Relacionadas</h3>
                             <div className="flex flex-wrap gap-2">
-                                {["Apartamento a Venda", "Duplex a Venda", "Quitinete a Venda", "Casa a Venda", "Kitnet a Venda", "Sobrado a Venda", "Condominio a Venda", "Loft a Venda", "Triplex a Venda"].map(tag => (
+                                {relatedSearches.map(tag => (
                                     <button
                                         key={tag}
                                         type="button"

@@ -23,9 +23,10 @@ type Props = {
     filters: FilterDefinition[];
     onChange: (values: any) => void;
     layout?: 'horizontal' | 'vertical';
+    values?: Record<string, any>;
 };
 
-export function FiltersPanel({ filters, onChange, layout = 'horizontal' }: Props) {
+export function FiltersPanel({ filters, onChange, layout = 'horizontal', values = {} }: Props) {
     if (!filters || filters.length === 0) {
         return null; // Don't render anything if no filters, avoiding layout shift
     }

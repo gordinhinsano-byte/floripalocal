@@ -18,6 +18,8 @@ import PromoteAdPage from "./pages/PromoteAdPage";
 import MinhaConta from "./pages/MinhaConta";
 import HelpPage from "./pages/HelpPage";
 import EditAdPage from "./pages/EditAdPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 
@@ -56,6 +58,8 @@ const App = () => {
             {/* <Route path="/anuncio/:id/promover" element={<PromoteAdPage />} /> */}
             <Route path="/anuncio/:id/editar" element={<EditAdPage />} />
             <Route path="/ajuda" element={<HelpPage />} />
+            <Route path="/termos-de-uso" element={<TermsPage />} />
+            <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

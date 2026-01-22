@@ -8,7 +8,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Listing, Conversation, Message, Profile } from "@/types";
 import { toast } from "sonner";
 import { getMyListings, updateListing, getFavoriteListings, toggleFavorite, deleteListing } from "@/services/listings";
-import { getMyConversations, getMessages, sendMessage } from "@/services/messages";
+import { getMyConversations, getMessages, sendMessage, getUnreadSummary, markConversationRead } from "@/services/messages";
 import { Eye, Edit, Mail, Phone, ExternalLink, Trash2 } from "lucide-react";
 
 type Tab = 'overview' | 'ads' | 'chat' | 'favorites' | 'settings';
@@ -404,14 +404,37 @@ const ChatTab = ({ conversations, currentUserId }: { conversations: Conversation
     const [messages, setMessages] = useState<Message[]>([]);
     const [text, setText] = useState("");
     const [loadingSend, setLoadingSend] = useState(false);
+    const queryClient = useQueryClient();
 
-    // Auto-refresh messages logic could go here (polling)
+    // Use the same query as Header to sync notifications
+    const { data: unreadSummary } = useQuery({
+        queryKey: ['unread_summary'],
+        queryFn: () => getUnreadSummary(),
+        refetchInterval: 5000 // Poll faster in dashboard
+    });
+    
+    const unreadByConv = unreadSummary?.byConversation || {};
 
     const openConversation = async (id: string) => {
         setSelectedConversationId(id);
         try {
+            // Optimistically update cache to clear notification immediately
+            queryClient.setQueryData(['unread_summary'], (old: any) => {
+                if (!old) return old;
+                const newByConv = { ...old.byConversation };
+                const countToRemove = newByConv[id] || 0;
+                delete newByConv[id];
+                return {
+                    total: Math.max(0, old.total - countToRemove),
+                    byConversation: newByConv
+                };
+            });
+
+            await markConversationRead(id);
             const msgs = await getMessages(id);
             setMessages(msgs);
+            // Re-fetch to ensure sync
+            queryClient.invalidateQueries({ queryKey: ['unread_summary'] });
         } catch (error) {
             console.error(error);
             toast.error("Erro ao carregar mensagens");
@@ -455,8 +478,15 @@ const ChatTab = ({ conversations, currentUserId }: { conversations: Conversation
                                     <span className="font-bold text-sm text-gray-900">
                                         {conv.listing?.title || "Anúncio"}
                                     </span>
-                                    <span className="text-xs text-gray-500">
-                                        {new Date(conv.created_at).toLocaleDateString()}
+                                    <span className="flex items-center gap-2">
+                                        {unreadByConv[conv.id] > 0 && (
+                                            <span className="bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                                {unreadByConv[conv.id]}
+                                            </span>
+                                        )}
+                                        <span className="text-xs text-gray-500">
+                                            {new Date(conv.created_at).toLocaleDateString()}
+                                        </span>
                                     </span>
                                 </div>
                                 <p className="text-xs text-viva-green mt-1">

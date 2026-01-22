@@ -267,7 +267,14 @@ export default function AdDetail() {
                 <div className="container mx-auto flex items-center gap-1 text-gray-500 overflow-x-auto whitespace-nowrap">
                     <Link to="/" className="hover:underline">Classificados</Link>
                     <span>&gt;</span>
-                    {/* <Link to={`/c/${ad.categorySlug}`} className="hover:underline capitalize">{ad.categorySlug}</Link> */}
+                    {(ad as any).categories && (
+                        <>
+                            <Link to={`/c/${(ad as any).categories.slug}`} className="hover:underline text-[#76bc21]">
+                                {(ad as any).categories.name}
+                            </Link>
+                            <span>&gt;</span>
+                        </>
+                    )}
                     <span className="text-gray-400 truncate max-w-[200px]">{ad.title}</span>
                 </div>
             </div>
@@ -364,6 +371,9 @@ export default function AdDetail() {
                                         <video
                                             src={videoUrl}
                                             controls
+                                            preload="metadata"
+                                            playsInline
+                                            crossOrigin="anonymous"
                                             className="w-full h-full"
                                         />
                                     </div>

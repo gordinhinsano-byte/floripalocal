@@ -11,7 +11,7 @@ export async function uploadListingImage(listingId: string, file: File) {
 
     const { error } = await supabase.storage
         .from('listing-images')
-        .upload(path, file, { upsert: false })
+        .upload(path, file, { upsert: false, contentType: file.type || undefined })
 
     if (error) throw error
 
