@@ -662,8 +662,8 @@ export default function CategoryPage() {
                                     
                                     if (viewMode === 'list') {
                                         // LIST VIEW STYLES
-                                        // Base container
-                                        containerClasses = "border p-4 flex gap-4 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm";
+                                        // Base container - Responsive: flex-col on mobile, flex-row on md+
+                                        containerClasses = "border p-4 flex flex-col md:flex-row gap-4 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm";
                                         titleClasses = "font-bold text-lg group-hover:underline mb-1 uppercase text-[#004e8a]";
                                         
                                         if (isPremium) {
@@ -705,9 +705,9 @@ export default function CategoryPage() {
                                             )}
                                             
                                             {isPremium && viewMode === 'list' ? (
-                                                <div className="flex gap-1 h-[180px] flex-shrink-0">
+                                                <div className="flex gap-1 h-[180px] w-full md:w-auto flex-shrink-0">
                                                     {/* Main Image */}
-                                                    <div className="w-[240px] h-full relative bg-gray-200 overflow-hidden rounded-sm">
+                                                    <div className="w-full md:w-[240px] h-full relative bg-gray-200 overflow-hidden rounded-sm">
                                                         <img
                                                             src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
                                                             alt={ad.title}
@@ -718,8 +718,8 @@ export default function CategoryPage() {
                                                             <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
                                                         </div>
                                                     </div>
-                                                    {/* Thumbnails */}
-                                                    <div className="flex flex-col gap-1 w-[100px] h-full">
+                                                    {/* Thumbnails - Hidden on mobile for space */}
+                                                    <div className="hidden md:flex flex-col gap-1 w-[100px] h-full">
                                                         <div className="h-1/2 relative bg-gray-200 overflow-hidden rounded-sm">
                                                             <img
                                                                 src={ad.images?.[1] || ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
@@ -737,7 +737,7 @@ export default function CategoryPage() {
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className={`${viewMode === 'list' ? 'w-[240px] h-[180px]' : 'w-full h-[200px]'} flex-shrink-0 bg-gray-200 relative overflow-hidden rounded-sm`}>
+                                                <div className={`${viewMode === 'list' ? 'w-full h-[200px] md:w-[240px] md:h-[180px]' : 'w-full h-[200px]'} flex-shrink-0 bg-gray-200 relative overflow-hidden rounded-sm`}>
                                                     <img
                                                         src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
                                                         alt={ad.title}
