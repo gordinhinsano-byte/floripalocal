@@ -88,19 +88,74 @@ export interface SearchParams {
 }
 
 export async function searchListings(params: SearchParams): Promise<Listing[]> {
+    // We will NOT send p_attrs to RPC because strict JSONB matching often fails 
+    // with arrays vs strings or partial matches. We filter client-side below.
     const { data, error } = await supabase.rpc('search_listings', {
         p_category_id: params.categoryId || null,
         p_city: params.city || null,
         p_price_min: params.minPrice || null,
         p_price_max: params.maxPrice || null,
-        p_attrs: params.attributes || {}
+        p_attrs: {} // Empty to get all results, then filter in JS
     });
 
     if (error) {
         console.error("RPC Error:", error);
         return [];
     }
-    return data || [];
+    
+    let results = data || [];
+
+    // Client-side Attribute Filtering (Robust)
+    if (params.attributes && Object.keys(params.attributes).length > 0) {
+        results = results.filter(ad => {
+            const adAttrs = ad.attributes || {};
+            
+            return Object.entries(params.attributes || {}).every(([key, requiredValue]) => {
+                // Skip special internal keys if any leak here
+                if (!requiredValue) return true;
+
+                const adValue = adAttrs[key];
+
+                // If ad doesn't have the attribute at all, it fails filter
+                if (adValue === undefined || adValue === null) return false;
+
+                // Case 1: Required is boolean (e.g. checkbox "true")
+                if (typeof requiredValue === 'boolean' || requiredValue === 'true') {
+                     return String(adValue) === 'true';
+                }
+
+                // Case 2: Required is Array (e.g. multi-select)
+                if (Array.isArray(requiredValue)) {
+                    // Ad value must match ONE of the required (OR logic) or ALL (AND logic)?
+                    // Usually filters are "Is one of these".
+                    // If Ad value is scalar: is it in required array?
+                    // If Ad value is array: do they intersect?
+                    
+                    const reqArray = requiredValue.map(String);
+                    
+                    if (Array.isArray(adValue)) {
+                        // Intersection
+                        return adValue.some(v => reqArray.includes(String(v)));
+                    } else {
+                        return reqArray.includes(String(adValue));
+                    }
+                }
+
+                // Case 3: Required is String
+                const reqStr = String(requiredValue).toLowerCase();
+                
+                if (Array.isArray(adValue)) {
+                    // Ad has list of services ["A", "B"], looking for "A"
+                    return adValue.some(v => String(v).toLowerCase() === reqStr);
+                } else {
+                    // Exact match (case-insensitive)
+                    return String(adValue).toLowerCase() === reqStr;
+                }
+            });
+        });
+    }
+
+    return results;
 }
 
 export async function getRecentListings(limit = 8): Promise<Listing[]> {
