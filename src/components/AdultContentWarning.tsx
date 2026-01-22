@@ -26,8 +26,8 @@ export const AdultContentWarning = ({ onAccept, onDecline }: AdultContentWarning
     if (!isVisible) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-white md:bg-gray-100 flex items-start md:items-center justify-center overflow-y-auto">
-            <div className="bg-white md:rounded-lg md:shadow-xl max-w-2xl w-full min-h-screen md:min-h-0 md:my-8 flex flex-col">
+        <div className="fixed inset-0 z-[9999] bg-white flex items-start md:items-center justify-center overflow-y-auto">
+            <div className="bg-white md:rounded-lg md:shadow-xl max-w-2xl w-full min-h-screen md:min-h-0 md:my-8 flex flex-col text-black">
                 
                 <div className="p-6 md:p-8 flex-1">
                     <div className="flex justify-center mb-8">

@@ -22,9 +22,10 @@ interface FilterDefinition {
 type Props = {
     filters: FilterDefinition[];
     onChange: (values: any) => void;
+    layout?: 'horizontal' | 'vertical';
 };
 
-export function FiltersPanel({ filters, onChange }: Props) {
+export function FiltersPanel({ filters, onChange, layout = 'horizontal' }: Props) {
     if (!filters || filters.length === 0) {
         return null; // Don't render anything if no filters, avoiding layout shift
     }
@@ -32,10 +33,18 @@ export function FiltersPanel({ filters, onChange }: Props) {
         if (e.key === "-" || e.key === "e" || e.key === "E") e.preventDefault();
     };
 
+    const containerClasses = layout === 'horizontal' 
+        ? "flex flex-wrap items-end gap-4" 
+        : "flex flex-col gap-4 w-full";
+
+    const itemClasses = layout === 'horizontal'
+        ? "flex-shrink-0 min-w-[150px]"
+        : "w-full";
+
     return (
-        <div className="flex flex-wrap items-end gap-4">
+        <div className={containerClasses}>
             {filters.map((filter, index) => (
-                <div key={`${filter.key}-${index}`} className="flex-shrink-0 min-w-[150px]">
+                <div key={`${filter.key}-${index}`} className={itemClasses}>
                     
                     {/* LABEL */}
                     {filter.type !== 'checkbox' && (
@@ -82,13 +91,13 @@ export function FiltersPanel({ filters, onChange }: Props) {
 
                     {/* RANGE TYPE (Numeric Inputs - Fallback) */}
                     {filter.type === 'range' && !filter.subfilters && (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 w-full">
                             <input
                                 type="number"
                                 min={0}
                                 onKeyDown={preventNegativeKey}
                                 placeholder="Min"
-                                className="w-[80px] border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
+                                className="flex-1 min-w-0 border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
                                 onChange={(e) => onChange({ [`${filter.key}_min`]: e.target.value })}
                             />
                             <input
@@ -96,7 +105,7 @@ export function FiltersPanel({ filters, onChange }: Props) {
                                 min={0}
                                 onKeyDown={preventNegativeKey}
                                 placeholder="Max"
-                                className="w-[80px] border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
+                                className="flex-1 min-w-0 border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
                                 onChange={(e) => onChange({ [`${filter.key}_max`]: e.target.value })}
                             />
                         </div>
@@ -104,13 +113,13 @@ export function FiltersPanel({ filters, onChange }: Props) {
 
                     {/* PRICE TYPE */}
                     {filter.type === 'price' && (
-                         <div className="flex gap-2">
+                         <div className="flex gap-2 w-full">
                              <input
                                  type="number"
                                  min={0}
                                  onKeyDown={preventNegativeKey}
                                  placeholder="Min R$"
-                                 className="w-[90px] border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
+                                 className="flex-1 min-w-0 border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
                                  onChange={(e) => onChange({ [`${filter.key}_min`]: e.target.value })}
                              />
                              <input
@@ -118,7 +127,7 @@ export function FiltersPanel({ filters, onChange }: Props) {
                                  min={0}
                                  onKeyDown={preventNegativeKey}
                                  placeholder="Max R$"
-                                 className="w-[90px] border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
+                                 className="flex-1 min-w-0 border border-gray-300 rounded px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green h-[38px]"
                                  onChange={(e) => onChange({ [`${filter.key}_max`]: e.target.value })}
                              />
                          </div>

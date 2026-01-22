@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { searchListings, getFavorites, toggleFavorite } from "@/services/listings";
 import { getCategoryBySlug } from "@/services/categories";
 import { CATEGORY_FILTERS, CATEGORY_GROUP_MAP } from "@/constants/filters";
-import { ChevronDown, LayoutGrid, List } from "lucide-react";
+import { ChevronDown, LayoutGrid, List, Search, Filter, Bell, X } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -124,7 +124,9 @@ export default function CategoryPage() {
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const categoryRef = useRef<HTMLDivElement>(null);
     const [showAllLocations, setShowAllLocations] = useState(false);
-    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    
+    // NEW MOBILE STATES
+    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
     const states = useMemo(() => ([
         "TODO BRASIL",
@@ -189,9 +191,6 @@ export default function CategoryPage() {
 
     const handleCategorySelect = (newSlug: string) => {
         const newParams = new URLSearchParams();
-        // Clear search term when switching categories via dropdown to avoid redundant ?q=...
-        // if (searchTerm) newParams.set("q", searchTerm); 
-        
         if (selectedState && selectedState !== "TODO BRASIL") newParams.set("state", selectedState);
         const query = newParams.toString();
         navigate(query ? `/c/${newSlug}?${query}` : `/c/${newSlug}`);
@@ -237,6 +236,7 @@ export default function CategoryPage() {
         else newParams.delete("state");
 
         setSearchParams(newParams);
+        setIsMobileFiltersOpen(false); // Close mobile modal if open
     };
 
     const applyRelatedSearch = (tag: string) => {
@@ -307,7 +307,7 @@ export default function CategoryPage() {
             if (!matchTitle && !matchDesc) return false;
         }
 
-        // State filter (from quick links / Hero dropdown)
+        // State filter
         if (stateQuery) {
             const st = stateQuery.toLowerCase();
             const matchState = ad.state?.toLowerCase().includes(st);
@@ -320,96 +320,8 @@ export default function CategoryPage() {
         }
 
         // Room Filter Logic
-        // Rooms filter comes as 'rooms' attribute with { min, max } from FiltersPanel
-        // But URL searchParams are flat: 'rooms' key isn't used directly, but maybe we need to parse it?
-        // Wait, the searchListings RPC handles 'attributes' logic for exact matches.
-        // BUT Range filters in FiltersPanel might be sending complex keys or values.
-        // Let's check how FiltersPanel sends range data.
-        // It sends separate keys for subfilters usually if configured that way.
-        // In filters.ts: 'rooms' has subfilters 'min' and 'max'.
-        // So FiltersPanel will emit { rooms: { min: '...', max: '...' } } ???
-        // No, FiltersPanel uses the key defined in subfilters?
-        // Actually, let's look at FiltersPanel implementation or assume standard behavior.
-        // If the user selects "min" for "Quartos", what param is set in URL?
-        // Based on previous code: handleFilterChange iterates and sets params.
-        
-        // Let's debug the 'rooms' logic here.
-        // If the user selects "2" in min dropdown for rooms.
-        // The filter key is likely just 'min' inside the subfilter, but we need to know it belongs to 'rooms'.
-        // The current implementation of FiltersPanel might be flattening keys incorrectly or we need to handle them here.
-        
-        // Let's enforce client-side range filtering for specific known keys like 'rooms' if RPC misses it
-        // RPC 'search_listings' uses JSONB contains (@>) which handles exact matches, but NOT ranges for JSON fields easily.
-        // So we MUST do client-side filtering for ranges on JSON attributes.
-
-        // Rooms Check
-        const roomsMin = searchParams.get("rooms_min");
-        const roomsMax = searchParams.get("rooms_max");
-        
-        // NOTE: FiltersPanel likely needs to send 'rooms_min' and 'rooms_max' instead of just nested objects?
-        // Or if it sends 'rooms' with a value?
-        // Let's assume for now we need to manually check 'rooms' attribute in ad against URL params.
-        
-        // HACK: If we see params like 'min' or 'max' without context, it's ambiguous.
-        // But let's look at how we parsed params at the top.
-        // We put everything not in blocklist into 'attrs'.
-        
-        // Let's try to filter based on 'rooms' attribute if it exists in 'attrs' (exact match)
-        // OR if we have specific range logic.
-        
-        // FIX: Let's implement robust client-side range check for 'rooms'
         if (ad.attributes?.rooms) {
             const adRooms = parseInt(ad.attributes.rooms);
-            
-            // Check if we have any room constraints in attrs that might be range-like
-            // Since we don't have explicit 'rooms_min' keys in the filter config yet, 
-            // we might need to rely on what is actually in the URL.
-            // If the user selects '2' in the 'min' dropdown of 'Quartos', what is the URL param?
-            // If filters.ts says subfilter key is 'min', and parent key is 'rooms'.
-            // FiltersPanel likely constructs keys? No, it usually sends flat keys if not handled.
-            
-            // Let's assume the URL has specific params we need to catch.
-            // For now, let's just log or try to match generic range logic if we can identify it.
-            
-            // Temporary Fix: Check if 'attrs' contains 'rooms' as a string (exact match)
-            // If the user selected '2' in a dropdown that maps to 'rooms', it might be exact.
-            // But 'Quartos' is a RANGE filter in config.
-            
-            // We need to parse range params from 'attrs' manually for client side.
-            // The RPC might fail on ranges inside JSONB.
-            
-            // Let's handle 'rooms' specifically here using the 'attrs' object we built
-            // But we need to know which keys in 'attrs' correspond to min/max rooms.
-            // In filters.ts, keys are 'min' and 'max' nested under 'rooms'.
-            // If FiltersPanel flattens them as 'rooms.min'? Or just 'min'?
-            // If it's just 'min', it conflicts with Price min.
-            
-            // If the URL is ?min=2&max=5... that's ambiguous (Price vs Rooms).
-            // We need to fix FiltersPanel keys in filters.ts to be unique (e.g., 'rooms_min').
-            // BUT, since I can't change filters.ts easily right now without breaking UI state,
-            // let's look at what's likely happening.
-            
-            // Actually, in filters.ts:
-            // Price (Aluguel) -> key: 'price', subfilters: min, max (selects)
-            // Quartos -> key: 'rooms', subfilters: min, max (selects)
-            
-            // Wait, if both use 'min' and 'max' as subfilter names, and FiltersPanel uses those names as keys...
-            // They WILL conflict in the URL. ?min=... &min=...
-            // THIS IS THE BUG.
-            // The filters need unique keys in filters.ts.
-            
-            // HOWEVER, fixing filters.ts is a large refactor.
-            // Let's see if we can infer or if we can change filters.ts quickly.
-            // Changing filters.ts is the CORRECT fix.
-            // 'rooms_min', 'rooms_max'.
-            
-            // Let's proceed with that fix in a separate tool call if needed, 
-            // but first let's see if we can hack it here or if the user is just asking why it's not working.
-            // It's not working because of the key conflict or RPC limitation.
-            
-            // Let's assume we update filters.ts to use unique keys.
-            // I will update this file to handle 'rooms_min' and 'rooms_max' client-side just in case.
-            
             const rMin = searchParams.get("rooms_min");
             const rMax = searchParams.get("rooms_max");
             
@@ -457,6 +369,16 @@ export default function CategoryPage() {
         setSearchParams(newParams);
     };
 
+    const clearFilters = () => {
+        const newParams = new URLSearchParams();
+        // Keep category-like params maybe? Or wipe all? Usually wipe filters but keep category context.
+        // But since category is in URL path, we just clear search params.
+        setSearchParams(newParams);
+        setSearchTerm("");
+        setSelectedState("TODO BRASIL");
+        setIsMobileFiltersOpen(false);
+    };
+
     const toggleAdvertiserType = (type: 'private' | 'professional') => {
         const newParams = new URLSearchParams(searchParams);
         const current = newParams.get("advertiserType");
@@ -471,6 +393,19 @@ export default function CategoryPage() {
 
     const categoryTitle = category?.name || cleanSlug.replace(/-/g, ' ').toUpperCase();
 
+    // Toggle Photos Filter
+    const togglePhotosFilter = () => {
+        const newParams = new URLSearchParams(searchParams);
+        if (hasPhotosParam === 'true') {
+            newParams.delete("has_photos");
+            setViewMode('list');
+        } else {
+            newParams.set("has_photos", "true");
+            setViewMode('grid'); // Usually photos filter implies grid view preference
+        }
+        setSearchParams(newParams);
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-white">
             {isAdultCategory && (
@@ -479,10 +414,52 @@ export default function CategoryPage() {
                     onDecline={() => navigate("/")}
                 />
             )}
+            
+            {/* MOBILE FILTERS MODAL (OVERLAY) */}
+            {isMobileFiltersOpen && (
+                <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in slide-in-from-bottom-10">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                        <h2 className="font-bold text-gray-800 text-lg">Filtrar resultados</h2>
+                        <button 
+                            onClick={() => setIsMobileFiltersOpen(false)}
+                            className="p-2 text-gray-500 hover:text-gray-800"
+                        >
+                            <X className="w-6 h-6" />
+                        </button>
+                    </div>
+                    
+                    {/* Body (Scrollable) */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                        <FiltersPanel 
+                            filters={staticFilters} 
+                            onChange={handleFilterChange} 
+                            layout="vertical"
+                        />
+                    </div>
+                    
+                    {/* Footer (Sticky) */}
+                    <div className="p-4 border-t border-gray-200 bg-white flex gap-3 sticky bottom-0">
+                        <button
+                            onClick={clearFilters}
+                            className="flex-1 py-3 px-4 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
+                        >
+                            Limpar
+                        </button>
+                        <button
+                            onClick={() => setIsMobileFiltersOpen(false)}
+                            className="flex-1 py-3 px-4 bg-[#ff8000] hover:bg-[#e67300] text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
+                        >
+                            Mostrar resultados
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <Header />
 
-            {/* Breadcrumb */}
-            <div className="bg-white pt-3 pb-1">
+            {/* Breadcrumb (Hidden on mobile to save space or simplified?) */}
+            <div className="bg-white pt-3 pb-1 hidden md:block">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center gap-1 text-xs text-gray-500 underline">
                         <Link to="/" className="hover:text-viva-green">Classificados</Link>
@@ -495,70 +472,163 @@ export default function CategoryPage() {
             <main className="flex-1">
                 <div className="container mx-auto px-4 py-4">
                     
-                    {/* FILTER BOX (Gray Area) */}
+                    {/* FILTER BOX (Responsive) */}
                     <div className="bg-[#eef1f3] p-4 rounded-sm border border-gray-200 mb-6">
-                        {/* Top Search Row */}
-                        <div className="flex flex-col md:flex-row gap-2 mb-4">
-                            <div ref={categoryRef} className="relative flex-1">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowCategoryDropdown((prev) => !prev)}
-                                    className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-viva-green"
+                        
+                        {/* DESKTOP LAYOUT (Hidden on mobile) */}
+                        <div className="hidden md:block">
+                             {/* Top Search Row */}
+                            <div className="flex flex-col md:flex-row gap-2 mb-4">
+                                <div ref={categoryRef} className="relative flex-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCategoryDropdown((prev) => !prev)}
+                                        className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-viva-green"
+                                    >
+                                        <span className="truncate">{categoryTitle}</span>
+                                        <ChevronDown className={`w-4 h-4 ml-2 flex-shrink-0 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {showCategoryDropdown && (
+                                        <div className="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto mt-1">
+                                            {flattenedCategories.map((cat, index) => (
+                                                <button
+                                                    key={`${cat.label}-${index}`}
+                                                    type="button"
+                                                    disabled={cat.isHeader || !cat.slug}
+                                                    onClick={() => {
+                                                        if (!cat.isHeader && cat.slug) {
+                                                            handleCategorySelect(cat.slug);
+                                                        }
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2 text-sm transition-colors ${cat.isHeader
+                                                        ? "font-bold text-gray-800 bg-gray-100 cursor-default"
+                                                        : "text-gray-600 hover:bg-viva-green hover:text-white cursor-pointer"
+                                                        }`}
+                                                >
+                                                    {cat.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <select
+                                    value={selectedState}
+                                    onChange={(e) => {
+                                        const next = e.target.value;
+                                        setSelectedState(next);
+                                        const newParams = new URLSearchParams(searchParams);
+                                        if (next && next !== "TODO BRASIL") newParams.set("state", next);
+                                        else newParams.delete("state");
+                                        setSearchParams(newParams);
+                                    }}
+                                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green bg-white"
                                 >
-                                    <span className="truncate">{categoryTitle}</span>
-                                    <ChevronDown className={`w-4 h-4 ml-2 flex-shrink-0 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
+                                    {states.map((st) => (
+                                        <option key={st} value={st}>{st}</option>
+                                    ))}
+                                </select>
+                                <button 
+                                    onClick={handleSearchSubmit}
+                                    className="bg-[#76bc21] hover:bg-[#6aa61e] text-white font-bold px-8 py-2 rounded text-sm transition-colors uppercase"
+                                >
+                                    Procurar
                                 </button>
-                                {showCategoryDropdown && (
-                                    <div className="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto mt-1">
-                                        {flattenedCategories.map((cat, index) => (
-                                            <button
-                                                key={`${cat.label}-${index}`}
-                                                type="button"
-                                                disabled={cat.isHeader || !cat.slug}
-                                                onClick={() => {
-                                                    if (!cat.isHeader && cat.slug) {
-                                                        handleCategorySelect(cat.slug);
-                                                    }
-                                                }}
-                                                className={`w-full text-left px-4 py-2 text-sm transition-colors ${cat.isHeader
-                                                    ? "font-bold text-gray-800 bg-gray-100 cursor-default"
-                                                    : "text-gray-600 hover:bg-viva-green hover:text-white cursor-pointer"
-                                                    }`}
-                                            >
-                                                {cat.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
-                            <select
-                                value={selectedState}
-                                onChange={(e) => {
-                                    const next = e.target.value;
-                                    setSelectedState(next);
-                                    const newParams = new URLSearchParams(searchParams);
-                                    if (next && next !== "TODO BRASIL") newParams.set("state", next);
-                                    else newParams.delete("state");
-                                    setSearchParams(newParams);
-                                }}
-                                className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green bg-white"
-                            >
-                                {states.map((st) => (
-                                    <option key={st} value={st}>{st}</option>
-                                ))}
-                            </select>
-                            <button 
-                                onClick={handleSearchSubmit}
-                                className="bg-[#76bc21] hover:bg-[#6aa61e] text-white font-bold px-8 py-2 rounded text-sm transition-colors uppercase"
-                            >
-                                Procurar
-                            </button>
+                            {/* Horizontal Filters */}
+                            <div className="pt-1">
+                                <FiltersPanel filters={staticFilters} onChange={handleFilterChange} />
+                            </div>
                         </div>
 
-                        {/* Horizontal Filters */}
-                        <div className="pt-1">
-                            <FiltersPanel filters={staticFilters} onChange={handleFilterChange} />
+                        {/* MOBILE LAYOUT (Hidden on desktop) */}
+                        <div className="md:hidden space-y-3">
+                            {/* Row 1: Search Input */}
+                            <div className="flex gap-2">
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. 'casal', 'ativo'"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green"
+                                />
+                                <button 
+                                    onClick={handleSearchSubmit}
+                                    className="bg-[#76bc21] text-white p-2 rounded w-10 flex items-center justify-center"
+                                >
+                                    <Search className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Row 2: Category & Location */}
+                            <div className="flex gap-2">
+                                {/* Category Dropdown (Simplified) */}
+                                <div className="flex-1 relative">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCategoryDropdown((prev) => !prev)}
+                                        className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm text-gray-700 flex items-center justify-between"
+                                    >
+                                        <span className="truncate">{categoryTitle}</span>
+                                        <ChevronDown className="w-4 h-4" />
+                                    </button>
+                                     {showCategoryDropdown && (
+                                        <div className="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 shadow-xl max-h-60 overflow-y-auto mt-1">
+                                            {flattenedCategories.map((cat, index) => (
+                                                <button
+                                                    key={`${cat.label}-${index}`}
+                                                    disabled={cat.isHeader}
+                                                    onClick={() => {
+                                                        if (!cat.isHeader && cat.slug) handleCategorySelect(cat.slug);
+                                                    }}
+                                                    className={`w-full text-left px-4 py-2 text-sm ${cat.isHeader ? "font-bold bg-gray-100" : "hover:bg-gray-50"}`}
+                                                >
+                                                    {cat.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {/* Location Input (Mocked as text for now to match UI, or use select) */}
+                                <div className="flex-1">
+                                     <select
+                                        value={selectedState}
+                                        onChange={(e) => setSelectedState(e.target.value)}
+                                        className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                                    >
+                                        <option value="TODO BRASIL">Brasil</option>
+                                        {states.slice(1).map((st) => (
+                                            <option key={st} value={st}>{st}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Row 3: Action Buttons */}
+                            <div className="flex gap-2 pt-1">
+                                <button 
+                                    onClick={() => setIsMobileFiltersOpen(true)}
+                                    className="flex-1 bg-white border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-gray-700 font-bold text-sm shadow-sm hover:bg-gray-50"
+                                >
+                                    <Filter className="w-4 h-4 text-[#ff8000]" />
+                                    Filtros
+                                </button>
+                                <button 
+                                    onClick={togglePhotosFilter}
+                                    className={`flex-1 bg-white border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-gray-700 font-bold text-sm shadow-sm hover:bg-gray-50 ${hasPhotosParam === 'true' ? 'ring-2 ring-[#ff8000]' : ''}`}
+                                >
+                                    <LayoutGrid className="w-4 h-4 text-[#ff8000]" />
+                                    Fotos
+                                </button>
+                                <button 
+                                    className="flex-1 bg-white border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-gray-700 font-bold text-sm shadow-sm hover:bg-gray-50"
+                                >
+                                    <Bell className="w-4 h-4 text-[#ff8000]" />
+                                    Alerta
+                                </button>
+                            </div>
                         </div>
+
                     </div>
 
                     {/* Results Header */}
@@ -754,6 +824,32 @@ export default function CategoryPage() {
                                                     </div>
                                                 </>
                                             ) : (
+                                                <div className="flex-1 min-w-0 flex flex-col justify-between">
+                                                    {/* Grid View Content */}
+                                                    <div>
+                                                        <h3 className={titleClasses}>
+                                                            <Link to={`/anuncio/${ad.id}`} className="block truncate">{ad.title}</Link>
+                                                        </h3>
+                                                        <div className="text-xs text-gray-500 mt-1">
+                                                            {ad.city}
+                                                        </div>
+                                                        {ad.price && (
+                                                            <div className="font-bold text-lg text-[#76bc21] mt-1">
+                                                                R${ad.price.toLocaleString('pt-BR')}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </article>
+                                    );
+                                })
+                            
+                        )}
+                    </div>
+                    
+                    {/* Pagination */}
+                    <div className="flex gap-1 justify-center mt-8">
                         <button className="bg-[#76bc21] text-white font-bold w-8 h-8 flex items-center justify-center rounded-sm text-sm">1</button>
                         <button className="bg-white border border-gray-300 text-gray-600 font-bold w-8 h-8 flex items-center justify-center rounded-sm hover:bg-gray-50 text-sm">»</button>
                     </div>
