@@ -119,7 +119,7 @@ export default function RegisterPage() {
                 : step === 3
                     ? formData.verificationCode.every((c) => String(c).trim().length > 0)
                     : step === 4
-                        ? !!formData.firstName && !!formData.lastName && !!formData.username && !!formData.phone && !!formData.password && formData.password.length >= 12
+                        ? !!formData.firstName && !!formData.lastName && !!formData.username && !!formData.phone && !!formData.password && formData.password.length >= 6
                         : false;
 
     // Calculate progress bar width
@@ -368,7 +368,7 @@ export default function RegisterPage() {
                                     </button>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-1">
-                                    Deve ter pelo menos 12 caracteres
+                                    Deve ter pelo menos 6 caracteres
                                 </p>
                             </div>
                         </div>

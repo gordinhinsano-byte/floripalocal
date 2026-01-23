@@ -25,7 +25,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
   });
 
   return (
-    <header className={`${transparent ? 'absolute top-0 left-0 right-0 z-50 bg-transparent border-none' : 'bg-white border-b border-border'} transition-all`}>
+    <header className={`${transparent ? 'absolute top-0 left-0 right-0 z-50 bg-transparent border-none' : 'relative bg-white border-b border-border'} transition-all`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4 relative">
           {/* Logo - Centered on Mobile if Transparent (Home), otherwise Left */}
