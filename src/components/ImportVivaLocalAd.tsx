@@ -46,7 +46,7 @@ export function ImportVivaLocalAd({ url, onUrlChange, onSuccess }: Props) {
       if (payload?.success === false) throw new Error(payload?.error || "Falha ao importar anúncio");
       setSuccess(payload?.success === true ? "Anúncio importado com sucesso!" : "Importação concluída!");
       toast.success("Anúncio importado com sucesso!");
-      onSuccess?.(payload?.data);
+      onSuccess?.(payload);
     } catch (e: any) {
       const msg =
         e?.name === "AbortError"

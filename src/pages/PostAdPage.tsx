@@ -210,7 +210,9 @@ export default function PostAdPage() {
         try {
             await updateListing(createdListingId, { status: 'active' });
             toast.success("Anúncio publicado com sucesso!");
-            navigate('/minha-conta');
+            setTimeout(() => {
+                window.location.href = `/meus-anuncios?refresh=1&listingId=${encodeURIComponent(createdListingId)}`;
+            }, 250);
         } catch (error: any) {
             toast.error("Erro ao publicar: " + error.message);
         } finally {
@@ -575,7 +577,17 @@ export default function PostAdPage() {
                                             <ImportVivaLocalAd
                                                 url={importUrl}
                                                 onUrlChange={setImportUrl}
-                                                onSuccess={() => navigate("/minha-conta")}
+                                                onSuccess={(payload) => {
+                                                    const listingId =
+                                                        (payload as any)?.listingId ||
+                                                        (payload as any)?.listing_id ||
+                                                        (payload as any)?.id;
+                                                    if (listingId) {
+                                                        window.location.href = `/meus-anuncios?refresh=1&listingId=${encodeURIComponent(String(listingId))}`;
+                                                        return;
+                                                    }
+                                                    window.location.href = "/meus-anuncios?refresh=1";
+                                                }}
                                             />
                                         )}
                                     </div>

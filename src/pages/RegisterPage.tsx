@@ -405,9 +405,9 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="flex gap-4 pt-4">
-                                <button className="flex-1 bg-viva-green text-white font-semibold py-3 px-4 rounded-md hover:bg-red-700 transition-colors text-sm text-center">
+                                <Link to="/publicar-anuncio" className="flex-1 bg-viva-green text-white font-semibold py-3 px-4 rounded-md hover:bg-red-700 transition-colors text-sm text-center">
                                     Publique seu primeiro anúncio
-                                </button>
+                                </Link>
                                 <Link to="/minha-conta" className="flex-1 border border-viva-green text-viva-green font-semibold py-3 px-4 rounded-md hover:bg-red-50 transition-colors text-sm text-center block">
                                     Minha conta
                                 </Link>

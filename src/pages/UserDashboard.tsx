@@ -23,6 +23,9 @@ export default function UserDashboard() {
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [isRefreshingAds, setIsRefreshingAds] = useState(false);
+    const [refreshAdsAttempts, setRefreshAdsAttempts] = useState(0);
+    const [refreshAdsTimedOut, setRefreshAdsTimedOut] = useState(false);
 
     const handleLogout = async () => {
         const { error } = await supabase.auth.signOut();
@@ -82,6 +85,54 @@ export default function UserDashboard() {
         queryFn: () => currentUserId ? getMyListings() : Promise.resolve([]),
         enabled: !!currentUserId
     });
+
+    useEffect(() => {
+        const shouldRefresh = searchParams.get("refresh") === "1";
+        if (!shouldRefresh || !currentUserId) return;
+
+        const targetListingId = (searchParams.get("listingId") || "").trim();
+        const reloadKey = `ads_refresh_reload_done:${targetListingId || currentUserId}`;
+        const alreadyReloadedOnce = sessionStorage.getItem(reloadKey) === "1";
+        setIsRefreshingAds(true);
+        setRefreshAdsTimedOut(false);
+        setRefreshAdsAttempts(0);
+
+        refetchAds();
+
+        let attempts = 0;
+        const maxAttempts = 20;
+        const intervalMs = 800;
+
+        const intervalId = window.setInterval(async () => {
+            attempts += 1;
+            setRefreshAdsAttempts(attempts);
+            await refetchAds();
+
+            const latest = (queryClient.getQueryData(['my_ads', currentUserId]) as Listing[] | undefined) || [];
+            const target = targetListingId ? latest.find((ad) => ad.id === targetListingId) : latest[0];
+            const imagesCount = Array.isArray(target?.images) ? target.images.filter(Boolean).length : 0;
+            const isReady = !!target && (targetListingId ? imagesCount > 0 : latest.length > 0);
+
+            if (targetListingId && !isReady && !alreadyReloadedOnce && attempts >= 3) {
+                sessionStorage.setItem(reloadKey, "1");
+                window.location.reload();
+                return;
+            }
+
+            if (isReady || attempts >= maxAttempts) {
+                window.clearInterval(intervalId);
+                setIsRefreshingAds(false);
+                if (attempts >= maxAttempts && (!target || imagesCount === 0)) setRefreshAdsTimedOut(true);
+                sessionStorage.removeItem(reloadKey);
+                const next = new URLSearchParams(searchParams);
+                next.delete("refresh");
+                next.delete("listingId");
+                setSearchParams(next, { replace: true });
+            }
+        }, intervalMs);
+
+        return () => window.clearInterval(intervalId);
+    }, [currentUserId, queryClient, refetchAds, searchParams, setSearchParams]);
 
     // Fetch Conversations
     const { data: conversations = [], refetch: refetchConversations } = useQuery({
@@ -173,6 +224,28 @@ export default function UserDashboard() {
 
                     {/* MAIN CONTENT */}
                     <div className="flex-1">
+                        {activeTab === 'ads' && (isRefreshingAds || refreshAdsTimedOut) && (
+                            <div className={`mb-4 rounded-lg border px-4 py-3 ${refreshAdsTimedOut ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-emerald-50 border-emerald-200 text-emerald-900'}`}>
+                                <div className="flex items-center gap-3">
+                                    {!refreshAdsTimedOut && (
+                                        <div className="h-4 w-4 rounded-full border-2 border-emerald-300 border-t-emerald-700 animate-spin" />
+                                    )}
+                                    <div className="text-sm font-semibold">
+                                        {refreshAdsTimedOut ? 'Ainda estamos finalizando seu anúncio.' : 'Publicando anúncio...'}
+                                    </div>
+                                    {!refreshAdsTimedOut && (
+                                        <div className="ml-auto text-xs text-emerald-800">
+                                            Atualizando... ({refreshAdsAttempts}/12)
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="text-xs mt-1 opacity-80">
+                                    {refreshAdsTimedOut
+                                        ? 'Se as fotos não aparecerem em alguns segundos, atualize a página.'
+                                        : 'Aguarde enquanto carregamos o anúncio e as fotos.'}
+                                </div>
+                            </div>
+                        )}
                         {activeTab === 'overview' && <OverviewTab setActiveTab={selectTab} adsCount={ads.length} conversationsCount={conversations.length} />}
                         {activeTab === 'ads' && <MyAdsTab ads={ads} onUpdate={refetchAds} />}
                         {activeTab === 'chat' && <ChatTab conversations={conversations} currentUserId={currentUserId} />}
