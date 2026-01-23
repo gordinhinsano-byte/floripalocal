@@ -645,7 +645,7 @@ export default function CategoryPage() {
                                 </select>
                                 <button 
                                     onClick={handleSearchSubmit}
-                                    className="bg-[#76bc21] hover:bg-[#6aa61e] text-white font-bold px-8 py-2 rounded text-sm transition-colors uppercase"
+                                    className="bg-viva-green hover:bg-red-700 text-white font-bold px-8 py-2 rounded text-sm transition-colors uppercase"
                                 >
                                     Procurar
                                 </button>
@@ -669,7 +669,7 @@ export default function CategoryPage() {
                                 />
                                 <button 
                                     onClick={handleSearchSubmit}
-                                    className="bg-[#76bc21] text-white p-2 rounded w-10 flex items-center justify-center"
+                                    className="bg-viva-green text-white p-2 rounded w-10 flex items-center justify-center"
                                 >
                                     <Search className="w-5 h-5" />
                                 </button>
@@ -759,14 +759,14 @@ export default function CategoryPage() {
                                 <div className="flex gap-4 text-sm text-gray-500 font-medium">
                                     <button 
                                         onClick={() => toggleAdvertiserType('private')}
-                                        className={`transition-colors hover:text-gray-900 ${advertiserType === 'private' ? 'text-[#76bc21] font-bold underline' : ''}`}
+                                        className={`transition-colors hover:text-gray-900 ${advertiserType === 'private' ? 'text-viva-green font-bold underline' : ''}`}
                                     >
                                         {privateAdvertiserLabel}
                                     </button>
                                     {professionalAdvertiserLabel && (
                                         <button 
                                             onClick={() => toggleAdvertiserType('professional')}
-                                            className={`transition-colors hover:text-gray-900 ${advertiserType === 'professional' ? 'text-[#76bc21] font-bold underline' : ''}`}
+                                            className={`transition-colors hover:text-gray-900 ${advertiserType === 'professional' ? 'text-viva-green font-bold underline' : ''}`}
                                         >
                                             {professionalAdvertiserLabel}
                                         </button>
@@ -831,7 +831,7 @@ export default function CategoryPage() {
                                 <p className="text-gray-500 text-lg">Nenhum anúncio encontrado nesta categoria.</p>
                                 <button 
                                     onClick={clearFilters}
-                                    className="px-6 py-2 bg-[#76bc21] hover:bg-[#6aa61e] text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
+                                    className="px-6 py-2 bg-viva-green hover:bg-red-700 text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
                                 >
                                     Ver todos os anúncios
                                 </button>
@@ -872,12 +872,12 @@ export default function CategoryPage() {
                                         customStyle.borderColor = "#f97316";
                                     } else if (isHighlight) {
                                         // HIGHLIGHT
-                                        customStyle.backgroundColor = "#F4FFEA";
-                                        customStyle.borderColor = "#65B21C";
+                                        customStyle.backgroundColor = "#FFF1F2";
+                                        customStyle.borderColor = "#dc2626";
                                         if (viewMode === 'list') {
-                                            titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-green-700 leading-tight";
+                                            titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-red-700 leading-tight";
                                         } else {
-                                            titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-green-700 line-clamp-2";
+                                            titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-red-700 line-clamp-2";
                                         }
                                     }
 
@@ -985,7 +985,7 @@ export default function CategoryPage() {
                                                     
                                                     {ad.price && (
                                                         <div className="mt-auto pt-2 border-t border-gray-100">
-                                                            <div className="font-bold text-lg text-[#76bc21]">
+                                                            <div className="font-bold text-lg text-viva-green">
                                                                 R${ad.price.toLocaleString('pt-BR')}
                                                             </div>
                                                         </div>
@@ -1013,7 +1013,7 @@ export default function CategoryPage() {
                     
                     {/* Pagination */}
                     <div className="flex gap-1 justify-center mt-8">
-                        <button className="bg-[#76bc21] text-white font-bold w-8 h-8 flex items-center justify-center rounded-sm text-sm">1</button>
+                        <button className="bg-viva-green text-white font-bold w-8 h-8 flex items-center justify-center rounded-sm text-sm">1</button>
                         <button className="bg-white border border-gray-300 text-gray-600 font-bold w-8 h-8 flex items-center justify-center rounded-sm hover:bg-gray-50 text-sm">»</button>
                     </div>
 

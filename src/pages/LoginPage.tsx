@@ -143,7 +143,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-bold text-white bg-viva-green hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-viva-green disabled:opacity-50 transition-colors"
+                                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-bold text-white bg-viva-green hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-viva-green disabled:opacity-50 transition-colors"
                             >
                                 {loading ? "Entrando..." : "Acesse aqui"}
                             </button>

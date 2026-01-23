@@ -160,9 +160,9 @@ export const HeroSection = () => {
   return (
     <>
     <section
-      className="relative flex flex-col justify-center min-h-[380px] md:h-[460px] pb-12 md:pb-0"
+      className="relative z-10 flex flex-col justify-center min-h-[380px] md:h-[460px] pb-12 md:pb-0"
       style={{
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('/bannerhero.webp')`,
+        backgroundImage: `linear-gradient(rgba(2,6,23,0.68), rgba(2,6,23,0.55)), url('/bannerhero.webp')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         // height: '460px' // Removed fixed height inline style to allow responsive classes
@@ -170,12 +170,12 @@ export const HeroSection = () => {
     >
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center pt-28 md:pt-0">
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-6 tracking-tight drop-shadow">
             Anúncios Classificados Grátis
           </h1>
 
           {/* Search Form */}
-          <div className="bg-white rounded shadow-lg flex flex-col md:flex-row">
+          <div className="relative z-[60] bg-white/95 backdrop-blur rounded-none shadow-2xl ring-1 ring-black/5 flex flex-col md:flex-row">
             {/* Category Dropdown */}
             <div ref={categoryRef} className="relative flex-1 border-b md:border-b-0 md:border-r border-gray-200">
               <button
@@ -183,13 +183,13 @@ export const HeroSection = () => {
                   setShowCategoryDropdown(!showCategoryDropdown);
                   setShowStateDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-4 py-3 text-left text-gray-600 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3.5 text-left text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-viva-green/30 focus-visible:ring-inset"
               >
                 <span className="truncate text-sm">{selectedCategory}</span>
                 <ChevronDown className={`w-4 h-4 ml-2 flex-shrink-0 transition-transform ${showCategoryDropdown ? 'rotate-180' : ''}`} />
               </button>
               {showCategoryDropdown && (
-                <div className="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto">
+                <div className="absolute z-[80] top-full left-0 right-0 -mt-px bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto">
                   {flattenedCategories.map((cat, index) => (
                     <button
                       key={index}
@@ -202,7 +202,7 @@ export const HeroSection = () => {
                       disabled={cat.isHeader}
                       className={`w-full text-left px-4 py-2 text-sm transition-colors ${cat.isHeader
                         ? "font-bold text-gray-800 bg-gray-100 cursor-default"
-                        : "text-gray-600 hover:bg-viva-green hover:text-white cursor-pointer"
+                        : "text-gray-700 hover:bg-viva-green hover:text-white cursor-pointer"
                         }`}
                     >
                       {cat.label}
@@ -219,13 +219,13 @@ export const HeroSection = () => {
                   setShowStateDropdown(!showStateDropdown);
                   setShowCategoryDropdown(false);
                 }}
-                className="w-full flex items-center justify-between px-4 py-3 text-left text-gray-600 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3.5 text-left text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-viva-green/30 focus-visible:ring-inset"
               >
                 <span className="truncate text-sm">{selectedState}</span>
                 <ChevronDown className={`w-4 h-4 ml-2 flex-shrink-0 transition-transform ${showStateDropdown ? 'rotate-180' : ''}`} />
               </button>
               {showStateDropdown && (
-                <div className="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto">
+                <div className="absolute z-[80] top-full left-0 right-0 -mt-px bg-white border border-gray-200 shadow-xl max-h-72 overflow-y-auto">
                   {states.map((state) => (
                     <button
                       key={state}
@@ -233,7 +233,7 @@ export const HeroSection = () => {
                         setSelectedState(state);
                         setShowStateDropdown(false);
                       }}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-viva-green hover:text-white transition-colors"
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-viva-green hover:text-white transition-colors"
                     >
                       {state}
                     </button>
@@ -245,7 +245,7 @@ export const HeroSection = () => {
             {/* Search Button */}
             <button 
                 onClick={handleSearch}
-                className="bg-viva-green hover:bg-green-600 text-white px-8 py-3 flex items-center justify-center gap-2 transition-colors font-medium"
+                className="bg-viva-green hover:bg-red-700 text-white px-8 py-3.5 flex items-center justify-center gap-2 transition-colors font-bold rounded-none"
             >
               <Search className="w-5 h-5" />
               <span>Buscar</span>
@@ -254,7 +254,7 @@ export const HeroSection = () => {
             {/* Mobile: Post Ad Button (Between Search and Categories) */}
             <button 
                 onClick={() => navigate('/publicar-anuncio')}
-                className="md:hidden bg-[#ff7f00] hover:bg-[#e67300] text-white px-8 py-3 flex items-center justify-center gap-2 transition-colors font-medium border-t border-white/20"
+                className="md:hidden bg-[#ff7f00] hover:bg-[#e67300] text-white px-8 py-3.5 flex items-center justify-center gap-2 transition-colors font-bold border-t border-white/20 rounded-none"
             >
               <PlusCircle className="w-5 h-5" />
               <span>Inserir Anúncio</span>
@@ -262,7 +262,7 @@ export const HeroSection = () => {
           </div>
         </div>
       </div>
-      <div className="hidden md:block absolute bottom-0 left-0 right-0">
+      <div className="hidden md:block absolute bottom-4 left-0 right-0 z-20">
         <CategoryBar />
       </div>
     </section>

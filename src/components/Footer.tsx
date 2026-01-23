@@ -136,7 +136,7 @@ const mainCities = [
 
 export const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white">
+    <footer className="bg-gradient-to-b from-gray-900 to-gray-950 text-white">
       {/* Categories Section */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
@@ -164,7 +164,7 @@ export const Footer = () => {
       {/* Cities Section Removed */}
 
       {/* Bottom Section */}
-      <div className="border-t border-gray-700 bg-gray-900">
+      <div className="border-t border-white/10 bg-black/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
             <div className="flex items-center">

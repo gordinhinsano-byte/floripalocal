@@ -153,7 +153,7 @@ export default function UserDashboard() {
                                     key={item.id}
                                     onClick={() => selectTab(item.id as Tab)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-md transition-colors ${activeTab === item.id
-                                        ? 'bg-green-50 text-viva-green'
+                                        ? 'bg-red-50 text-viva-green'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                         }`}
                                 >
@@ -305,7 +305,7 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-gray-800">Meus Anúncios ({ads.length})</h2>
-                <Link to="/publicar-anuncio" className="bg-viva-green text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-700 transition-colors">
+                <Link to="/publicar-anuncio" className="bg-viva-green text-white px-4 py-2 rounded text-sm font-medium hover:bg-red-700 transition-colors">
                     Publicar Novo Anúncio
                 </Link>
             </div>
@@ -324,7 +324,7 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
                                 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <div className={`w-2.5 h-2.5 rounded-full ${ad.status === 'active' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                                        <div className={`w-2.5 h-2.5 rounded-full ${ad.status === 'active' ? 'bg-red-500' : 'bg-gray-400'}`}></div>
                                         <span className="font-bold text-gray-700 text-sm">
                                             {ad.status === 'active' ? 'Publicado' : (ad.status === 'draft' ? 'Rascunho' : 'Pausado')}
                                         </span>
@@ -358,7 +358,7 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
                                     <Link
                                         to={`/anuncio/${ad.id}`}
                                         target="_blank"
-                                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                                         title="Ver Anúncio"
                                     >
                                         <ExternalLink className="w-5 h-5" />
@@ -385,7 +385,7 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
                                 <p className="text-xs text-gray-500 mb-3">Você não tem planos ativos.</p>
                                 <Link 
                                     to={`/anuncio/${ad.id}/promover`}
-                                    className="bg-[#76bc21] hover:bg-[#689F38] text-white font-bold py-2.5 px-4 rounded shadow-sm transition-colors text-sm w-full"
+                                    className="bg-viva-green hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded shadow-sm transition-colors text-sm w-full"
                                 >
                                     Adicione um plano de destaque
                                 </Link>
@@ -472,7 +472,7 @@ const ChatTab = ({ conversations, currentUserId }: { conversations: Conversation
                             <div
                                 key={conv.id}
                                 onClick={() => openConversation(conv.id)}
-                                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${selectedConversationId === conv.id ? 'bg-green-50' : ''}`}
+                                className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${selectedConversationId === conv.id ? 'bg-red-50' : ''}`}
                             >
                                 <div className="flex justify-between mb-1">
                                     <span className="font-bold text-sm text-gray-900">
@@ -522,7 +522,7 @@ const ChatTab = ({ conversations, currentUserId }: { conversations: Conversation
                                                 : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
                                             }`}>
                                             {msg.body}
-                                            <div className={`text-[10px] mt-1 text-right ${isMe ? 'text-green-100' : 'text-gray-400'}`}>
+                                            <div className={`text-[10px] mt-1 text-right ${isMe ? 'text-red-100' : 'text-gray-400'}`}>
                                                 {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
                                         </div>
@@ -549,7 +549,7 @@ const ChatTab = ({ conversations, currentUserId }: { conversations: Conversation
                                 <button
                                     type="submit"
                                     disabled={loadingSend || !text.trim()}
-                                    className="bg-viva-green text-white p-2 rounded-full hover:bg-green-700 transition-colors disabled:opacity-50"
+                                    className="bg-viva-green text-white p-2 rounded-full hover:bg-red-700 transition-colors disabled:opacity-50"
                                 >
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 </button>
@@ -621,7 +621,7 @@ const SettingsTab = ({ profile, onUpdate }: { profile: Profile | null, onUpdate:
                 <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="bg-viva-green text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+                    className="bg-viva-green text-white px-6 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50"
                 >
                     {loading ? 'Salvando...' : 'Salvar Alterações'}
                 </button>

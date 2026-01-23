@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
                                 <div>
                                     <button
                                         type="submit"
-                                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-viva-green hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-viva-green"
+                                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-viva-green hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-viva-green"
                                     >
                                         Redefinir senha
                                     </button>
@@ -55,8 +55,8 @@ export default function ForgotPasswordPage() {
                         </>
                     ) : (
                         <div className="text-center">
-                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-                                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
                             </p>
                             <Link
                                 to="/minha-conta"
-                                className="font-medium text-viva-green hover:text-green-700"
+                                className="font-medium text-viva-green hover:text-red-700"
                             >
                                 Voltar para o login
                             </Link>
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
                     <div className="mt-6 text-center">
                         <p className="text-xs text-gray-500">
                             Lembrou sua senha?{" "}
-                            <Link to="/minha-conta" className="font-medium text-viva-green hover:text-green-700">
+                            <Link to="/minha-conta" className="font-medium text-viva-green hover:text-red-700">
                                 Entrar
                             </Link>
                         </p>

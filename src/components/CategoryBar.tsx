@@ -363,19 +363,19 @@ export const categories = [
 
 export const CategoryBar = () => {
     return (
-        <div className="w-full flex justify-center">
-            <NavigationMenu className="max-w-[1408px] w-[1408px] bg-[#6c757d]/90 backdrop-blur-[2px] z-30 border-none shadow-none">
-                <NavigationMenuList className="justify-center space-x-0 whitespace-nowrap w-full p-0 m-0 list-none">
+        <div className="w-full flex justify-center px-4 relative z-20">
+            <NavigationMenu className="max-w-[1408px] w-full bg-black/25 backdrop-blur-md z-30 border-none shadow-none rounded-xl ring-1 ring-white/10">
+                <NavigationMenuList className="justify-center whitespace-nowrap w-full p-2 m-0 list-none flex-nowrap gap-2">
                     {categories.map((category) => (
-                        <NavigationMenuItem key={category.name} className="w-[176px] h-[68px] p-0 m-0 border-r border-black last:border-r-0">
+                        <NavigationMenuItem key={category.name} className="flex-1 min-w-[140px] h-[56px] p-0 m-0">
                             <NavigationMenuTrigger
                                 style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}
-                                className="w-full h-full bg-transparent text-white hover:text-white hover:bg-white/10 data-[state=open]:bg-[#5a6268] data-[state=open]:text-white focus:bg-white/10 focus:text-white rounded-none px-0.5 text-[13px] font-normal flex justify-center items-center text-center whitespace-normal leading-[13px] shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-100 opacity-100 [&_svg]:hidden"
+                                className="w-full h-full bg-viva-green/85 text-white hover:bg-red-700 data-[state=open]:bg-red-700 data-[state=open]:text-white focus:bg-red-700 rounded-lg px-2 text-[13px] font-bold flex justify-center items-center text-center whitespace-normal leading-[13px] shadow-sm border border-white/10 hover:border-white/20 focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-100 opacity-100 [&_svg]:hidden"
                             >
                                 {category.name}
                             </NavigationMenuTrigger>
                             <NavigationMenuContent>
-                                <div className="w-[1408px] bg-white p-6 shadow-xl">
+                                <div className="w-[1408px] max-w-[1408px] p-6">
                                     {/* Grid layout based on number of columns */}
                                     <div className={cn(
                                         "grid gap-4",

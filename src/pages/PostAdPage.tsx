@@ -9,6 +9,7 @@ import { createListing, updateListing, uploadListingImage, uploadListingVideo } 
 import { getCategories, getCategoryBySlug } from "@/services/categories";
 import { Category } from "@/types";
 import { supabase } from "@/lib/supabaseClient";
+import { ImportVivaLocalAd } from "@/components/ImportVivaLocalAd";
 
 // Official FloripaLocal Icons from Source
 const Icons = {
@@ -56,12 +57,19 @@ export default function PostAdPage() {
         address: '',
         neighborhood: '',
         city: '',
-        services: []
+        services: [],
+        import_url: ''
     });
     
     // Images: Local Preview and File Object
     const [imageFiles, setImageFiles] = useState<{file: File, preview: string}[]>([]);
     const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [escortFlowMode, setEscortFlowMode] = useState<"" | "new" | "import">("");
+    const [importUrl, setImportUrl] = useState("");
+    const [isImporting, setIsImporting] = useState(false);
+    const [lastImportedUrl, setLastImportedUrl] = useState("");
+    const [importedImageUrls, setImportedImageUrls] = useState<string[]>([]);
+    const isEscortImportFlow = categorySlug.startsWith("acompanhantes") && escortFlowMode === "import";
     const stateOptions = [
         "Acre",
         "Alagoas",
@@ -105,6 +113,19 @@ export default function PostAdPage() {
         getCategories().then(setDbCategories).catch(console.error);
     }, []);
 
+    useEffect(() => {
+        if (!categorySlug.startsWith("acompanhantes")) {
+            setEscortFlowMode("");
+            setImportUrl("");
+            setIsImporting(false);
+            setLastImportedUrl("");
+            setImportedImageUrls([]);
+            setFormData((prev: any) => ({ ...prev, import_url: "" }));
+        } else {
+            setImportedImageUrls([]);
+        }
+    }, [categorySlug]);
+
     const updateFormData = (field: string, value: any) => {
         setFormData((prev: any) => ({ ...prev, [field]: value }));
     };
@@ -141,9 +162,29 @@ export default function PostAdPage() {
 
     const handleNext = async () => {
         if (step === 1) {
-            if (!categorySlug || !formData.title || !formData.description || !formData.state) {
+            if (!categorySlug) {
                 toast.error("Por favor, preencha todos os campos obrigatórios.");
                 return;
+            }
+            if (categorySlug.startsWith("acompanhantes")) {
+                if (!escortFlowMode) {
+                    toast.error("Escolha: Criar novo ou Importar de outro site.");
+                    return;
+                }
+                if (escortFlowMode === "import") {
+                    toast.error("Clique em Importar Anúncio para continuar.");
+                    return;
+                } else {
+                    if (!formData.state || !formData.title || !formData.description) {
+                        toast.error("Por favor, preencha todos os campos obrigatórios.");
+                        return;
+                    }
+                }
+            } else {
+                if (!formData.state || !formData.title || !formData.description) {
+                    toast.error("Por favor, preencha todos os campos obrigatórios.");
+                    return;
+                }
             }
         }
         if (step === 2) {
@@ -206,7 +247,7 @@ export default function PostAdPage() {
             setCreatedListingId(newListing.id);
 
             // 4. Upload Images
-            const uploadedUrls: string[] = [];
+            const uploadedUrls: string[] = [...importedImageUrls];
             for (const img of imageFiles) {
                 try {
                     const url = await uploadListingImage(img.file, newListing.id);
@@ -294,6 +335,8 @@ export default function PostAdPage() {
             setVideoFile(e.target.files[0]);
         }
     }
+
+    // Import happens only when the user clicks "Publicar" in the import flow.
 
     // Dynamic Filter Renderer
     const renderDynamicFilters = () => {
@@ -507,42 +550,77 @@ export default function PostAdPage() {
                                     </Select>
                                 </div>
 
-                                <div>
-                                    <label className="block text-base font-bold text-gray-700 mb-2">Estado</label>
-                                    <Select onValueChange={(v) => updateFormData('state', v)} value={formData.state}>
-                                        <SelectTrigger className="w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-600 rounded">
-                                            <SelectValue placeholder="Selecione um estado" />
-                                        </SelectTrigger>
-                                        <SelectContent className="max-h-[350px]">
-                                            {stateOptions.map((st) => (
-                                                <SelectItem key={st} value={st} className="cursor-pointer py-1.5">
-                                                    {st}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                {categorySlug.startsWith("acompanhantes") && (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEscortFlowMode("new")}
+                                                className={`text-left p-4 border rounded transition-colors ${escortFlowMode === "new" ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:bg-gray-50"}`}
+                                            >
+                                                <div className="font-bold text-gray-800">Criar novo</div>
+                                                <div className="text-sm text-gray-600">Preencher o anúncio manualmente</div>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setEscortFlowMode("import")}
+                                                className={`text-left p-4 border rounded transition-colors ${escortFlowMode === "import" ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:bg-gray-50"}`}
+                                            >
+                                                <div className="font-bold text-gray-800">Importar de outro site</div>
+                                                <div className="text-sm text-gray-600">Cole a URL e a gente puxa os dados</div>
+                                            </button>
+                                        </div>
 
-                                <div>
-                                    <label className="block text-base font-bold text-gray-700 mb-2">Título do seu Anúncio *</label>
-                                    <input
-                                        type="text"
-                                        value={formData.title}
-                                        onChange={(e) => updateFormData('title', e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors"
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">Insira pelo menos 15 caracteres</p>
-                                </div>
+                                        {escortFlowMode === "import" && (
+                                            <ImportVivaLocalAd
+                                                url={importUrl}
+                                                onUrlChange={setImportUrl}
+                                                onSuccess={() => navigate("/minha-conta")}
+                                            />
+                                        )}
+                                    </div>
+                                )}
 
-                                <div>
-                                    <label className="block text-base font-bold text-gray-700 mb-2">Descrição *</label>
-                                    <textarea
-                                        rows={8}
-                                        value={formData.description}
-                                        onChange={(e) => updateFormData('description', e.target.value)}
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors resize-y"
-                                    ></textarea>
-                                </div>
+                                {(!categorySlug.startsWith("acompanhantes") || escortFlowMode === "new") && (
+                                    <>
+                                        <div>
+                                            <label className="block text-base font-bold text-gray-700 mb-2">Estado</label>
+                                            <Select onValueChange={(v) => updateFormData('state', v)} value={formData.state}>
+                                                <SelectTrigger className="w-full px-4 py-2.5 bg-white border border-gray-300 text-gray-600 rounded">
+                                                    <SelectValue placeholder="Selecione um estado" />
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-[350px]">
+                                                    {stateOptions.map((st) => (
+                                                        <SelectItem key={st} value={st} className="cursor-pointer py-1.5">
+                                                            {st}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-base font-bold text-gray-700 mb-2">Título do seu Anúncio *</label>
+                                            <input
+                                                type="text"
+                                                value={formData.title}
+                                                onChange={(e) => updateFormData('title', e.target.value)}
+                                                className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors"
+                                            />
+                                            <p className="text-xs text-gray-500 mt-1">Insira pelo menos 15 caracteres</p>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-base font-bold text-gray-700 mb-2">Descrição *</label>
+                                            <textarea
+                                                rows={8}
+                                                value={formData.description}
+                                                onChange={(e) => updateFormData('description', e.target.value)}
+                                                className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors resize-y"
+                                            ></textarea>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 
@@ -673,7 +751,7 @@ export default function PostAdPage() {
                         {/* SUCCESS STEP */}
                         {step === 3 && (
                             <div className="space-y-6 text-center py-12">
-                                <div className="mx-auto w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4 border border-green-100">
+                                <div className="mx-auto w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-4 border border-red-100">
                                     <Icons.Tick />
                                 </div>
                                 <h2 className="text-2xl font-bold text-gray-900">Anúncio Pronto!</h2>
@@ -685,6 +763,7 @@ export default function PostAdPage() {
 
 
                         {/* Footer Actions */}
+                        {!isEscortImportFlow && (
                         <div className="mt-8 pt-6 border-t border-gray-100 flex justify-between">
                             {step > 1 ? (
                                 <button
@@ -702,9 +781,12 @@ export default function PostAdPage() {
                                 disabled={isSubmitting}
                                 className="px-8 py-3 bg-[#ff7f00] text-white font-bold rounded shadow-sm hover:bg-[#e67300] transition-colors text-lg disabled:opacity-50"
                             >
-                                {isSubmitting ? 'Processando...' : (step === 3 ? 'Publicar Agora' : 'Próximo')}
+                                {isSubmitting
+                                    ? 'Processando...'
+                                    : (step === 3 ? 'Publicar Agora' : 'Próximo')}
                             </button>
                         </div>
+                        )}
                     </div>
                 </div>
             </main>

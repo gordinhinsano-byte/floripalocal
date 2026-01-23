@@ -448,7 +448,7 @@ export default function EditAdPage() {
                                         {previews.map((url, index) => (
                                             <div key={`new-${index}`} className="relative aspect-square bg-gray-100 rounded border border-gray-200 group overflow-hidden">
                                                 <img src={url} alt="" className="w-full h-full object-cover" />
-                                                <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-[10px] text-center py-0.5">Nova</div>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-red-500 text-white text-[10px] text-center py-0.5">Nova</div>
                                                 <button
                                                     onClick={() => removeNewImage(index)}
                                                     className="absolute top-1 right-1 bg-black/50 hover:bg-red-600 text-white rounded-full p-1 shadow-sm transition-colors"
@@ -497,7 +497,7 @@ export default function EditAdPage() {
                                                     <X className="w-4 h-4" />
                                                 </button>
                                                 {newVideoFile && (
-                                                     <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-[10px] text-center py-0.5">Novo Vídeo</div>
+                                                     <div className="absolute bottom-0 left-0 right-0 bg-red-500 text-white text-[10px] text-center py-0.5">Novo Vídeo</div>
                                                 )}
                                             </div>
                                         ) : (
@@ -573,7 +573,7 @@ export default function EditAdPage() {
                             </button>
                             <button
                                 onClick={handleSave}
-                                className="px-6 py-2 bg-[#76bc21] hover:bg-[#689F38] text-white font-bold rounded shadow-sm transition-colors disabled:opacity-50"
+                                className="px-6 py-2 bg-viva-green hover:bg-red-700 text-white font-bold rounded shadow-sm transition-colors disabled:opacity-50"
                                 disabled={saving}
                             >
                                 Salvar

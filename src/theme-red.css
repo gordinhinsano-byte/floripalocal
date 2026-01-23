@@ -1,0 +1,38 @@
+:root {
+  --brand-primary: 0 72% 51%;
+  --brand-secondary: 0 84% 60%;
+  --brand-tertiary: 0 74% 42%;
+
+  --primary: var(--brand-primary);
+  --accent: var(--brand-primary);
+  --ring: var(--brand-primary);
+
+  --viva-green: var(--brand-primary);
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --brand-primary: 0 72% 55%;
+  --brand-secondary: 0 84% 62%;
+  --brand-tertiary: 0 74% 48%;
+
+  --primary: var(--brand-primary);
+  --accent: var(--brand-primary);
+  --ring: var(--brand-primary);
+
+  --viva-green: var(--brand-primary);
+
+  --radius: 0.5rem;
+}
+
+body {
+  line-height: 1.55;
+}
+
+button,
+input,
+select,
+textarea {
+  border-radius: 0.5rem;
+}

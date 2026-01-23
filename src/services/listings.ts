@@ -172,7 +172,6 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
         'encontros'
     ];
 
-    // Fetch a bit more than limit to account for client-side filtering
     const { data, error } = await supabase
         .from('listings')
         .select(`
@@ -181,6 +180,9 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
                 name,
                 phone,
                 avatar_url
+            ),
+            categories:category_id (
+                slug
             )
         `)
         .eq('status', 'active')
@@ -192,13 +194,16 @@ export async function getRecentListings(limit = 8): Promise<Listing[]> {
         return [];
     }
 
-    // Filter client-side to avoid RPC/Syntax issues with complex NOT IN queries
     const filtered = (data || []).filter(ad => {
-        // Safe access to category_id
         const catId = (ad.category_id || '').toLowerCase();
-        
-        // 1. Check Category ID
-        if (ADULT_CATEGORIES.some(adult => catId === adult || catId.includes(adult))) {
+        // @ts-ignore
+        const cat = ad.categories;
+        const catSlug = (
+            (Array.isArray(cat) ? cat?.[0]?.slug : cat?.slug) ||
+            ''
+        ).toLowerCase();
+
+        if (ADULT_CATEGORIES.some(adult => catId === adult || catId.includes(adult) || catSlug === adult || catSlug.includes(adult))) {
             return false;
         }
 

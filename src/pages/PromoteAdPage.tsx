@@ -78,7 +78,7 @@ export default function PromoteAdPage() {
             price: 59.95,
             duration: '30 dias',
             type: 'checkbox',
-            icon: <Palette className="w-10 h-10 text-green-500" />
+            icon: <Palette className="w-10 h-10 text-red-500" />
         },
         {
             id: 'top_bump',
@@ -244,7 +244,7 @@ export default function PromoteAdPage() {
                                             ? `${durationDaysByPlan[plan.id] || 30} dias`
                                             : plan.duration}
                                     </span>
-                                    <span className="text-xl font-bold text-[#76bc21]">
+                                    <span className="text-xl font-bold text-viva-green">
                                         R${plan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                     </span>
                                 </div>

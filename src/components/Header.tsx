@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X, Heart, MessageCircle, HelpCircle, User, PlusCircle, FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -9,11 +9,9 @@ interface HeaderProps {
 }
 
 export const Header = ({ transparent = false }: HeaderProps) => {
-  const location = useLocation();
-  const isHome = location.pathname === "/";
   // Use the logo based on background, but ensure it exists. Fallback to text if needed.
   // Assuming logos exist as /logoflb.svg (white/transparent bg) and /logofl.svg (colored/white bg)
-  const logoSrc = isHome ? "/logoflb.svg" : "/logofl.svg"; 
+  const logoSrc = transparent ? "/logoflb.svg" : "/logofl.svg";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const linkClass = transparent 

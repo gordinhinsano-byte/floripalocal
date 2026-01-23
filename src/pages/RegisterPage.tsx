@@ -111,6 +111,17 @@ export default function RegisterPage() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    const canProceed =
+        step === 1
+            ? !!formData.userType && captchaStatus === 'success'
+            : step === 2
+                ? !!formData.email && !!formData.agreedToTerms
+                : step === 3
+                    ? formData.verificationCode.every((c) => String(c).trim().length > 0)
+                    : step === 4
+                        ? !!formData.firstName && !!formData.lastName && !!formData.username && !!formData.phone && !!formData.password && formData.password.length >= 12
+                        : false;
+
     // Calculate progress bar width
     const getProgress = () => {
         switch (step) {
@@ -151,9 +162,9 @@ export default function RegisterPage() {
                             <div className="space-y-4">
                                 <button
                                     onClick={() => updateFormData('userType', 'advertiser')}
-                                    className={`w-full p-4 border rounded-lg flex items-center gap-4 text-left hover:border-viva-green transition-colors ${formData.userType === 'advertiser' ? 'border-viva-green bg-green-50' : 'border-gray-200'}`}
+                                    className={`w-full p-4 border rounded-lg flex items-center gap-4 text-left hover:border-viva-green transition-colors ${formData.userType === 'advertiser' ? 'border-viva-green bg-red-50' : 'border-gray-200'}`}
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-viva-green font-bold text-lg">
+                                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-viva-green font-bold text-lg">
                                         +
                                     </div>
                                     <div>
@@ -164,7 +175,7 @@ export default function RegisterPage() {
 
                                 <button
                                     onClick={() => updateFormData('userType', 'seeker')}
-                                    className={`w-full p-4 border rounded-lg flex items-center gap-4 text-left hover:border-viva-green transition-colors ${formData.userType === 'seeker' ? 'border-viva-green bg-green-50' : 'border-gray-200'}`}
+                                    className={`w-full p-4 border rounded-lg flex items-center gap-4 text-left hover:border-viva-green transition-colors ${formData.userType === 'seeker' ? 'border-viva-green bg-red-50' : 'border-gray-200'}`}
                                 >
                                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 font-bold text-lg">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -394,10 +405,10 @@ export default function RegisterPage() {
                             </div>
 
                             <div className="flex gap-4 pt-4">
-                                <button className="flex-1 bg-viva-green text-white font-semibold py-3 px-4 rounded-md hover:bg-green-700 transition-colors text-sm text-center">
+                                <button className="flex-1 bg-viva-green text-white font-semibold py-3 px-4 rounded-md hover:bg-red-700 transition-colors text-sm text-center">
                                     Publique seu primeiro anúncio
                                 </button>
-                                <Link to="/minha-conta" className="flex-1 border border-viva-green text-viva-green font-semibold py-3 px-4 rounded-md hover:bg-green-50 transition-colors text-sm text-center block">
+                                <Link to="/minha-conta" className="flex-1 border border-viva-green text-viva-green font-semibold py-3 px-4 rounded-md hover:bg-red-50 transition-colors text-sm text-center block">
                                     Minha conta
                                 </Link>
                             </div>
@@ -439,7 +450,8 @@ export default function RegisterPage() {
                         <div className="mt-8">
                             <button
                                 onClick={handleNext}
-                                className="w-full bg-[#E5E7EB] text-gray-400 font-semibold py-3 rounded-md hover:bg-viva-green hover:text-white transition-colors"
+                                disabled={!canProceed}
+                                className={`w-full font-semibold py-3 rounded-md transition-colors ${canProceed ? 'bg-viva-green text-white hover:bg-red-700' : 'bg-[#E5E7EB] text-gray-400 cursor-not-allowed'}`}
                             >
                                 {step === 4 ? 'Criar Conta' : 'Continua'}
                             </button>

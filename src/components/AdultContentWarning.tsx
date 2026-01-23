@@ -37,7 +37,7 @@ export const AdultContentWarning = ({ onAccept, onDecline }: AdultContentWarning
                     {/* Warning Box */}
                     <div className="bg-gray-50 p-6 rounded-sm mb-8 text-center border border-gray-100">
                          <h2 className="text-lg font-bold text-gray-800 flex items-center justify-center gap-2 mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                             Conteúdo adulto
@@ -79,13 +79,13 @@ export const AdultContentWarning = ({ onAccept, onDecline }: AdultContentWarning
                 {/* Actions Footer */}
                 <div className="p-4 border-t border-gray-200 bg-white sticky bottom-0 w-full flex gap-3">
                     <button
-                        className="flex-1 py-3 px-4 border border-green-600 text-green-700 font-semibold rounded hover:bg-green-50 transition-colors uppercase text-sm"
+                        className="flex-1 py-3 px-4 border border-red-600 text-red-700 font-semibold rounded hover:bg-red-50 transition-colors uppercase text-sm"
                         onClick={onDecline}
                     >
                         Voltar
                     </button>
                     <button
-                        className="flex-1 py-3 px-4 bg-[#76bc21] hover:bg-[#6aa61e] text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
+                        className="flex-1 py-3 px-4 bg-viva-green hover:bg-red-700 text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
                         onClick={handleAccept}
                     >
                         Eu concordo

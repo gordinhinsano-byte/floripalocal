@@ -362,7 +362,7 @@ export const CategoryFilters = ({ categorySlug, onFilterChange }: CategoryFilter
 
                 <button
                     onClick={applyFilters}
-                    className="ml-auto px-6 py-2 bg-[#76bc21] text-white rounded-lg text-sm font-bold hover:bg-[#689F38] transition-colors shadow-sm h-[38px] flex items-center"
+                    className="ml-auto px-6 py-2 bg-viva-green text-white rounded-lg text-sm font-bold hover:bg-red-700 transition-colors shadow-sm h-[38px] flex items-center"
                 >
                     Aplicar Filtros
                 </button>
