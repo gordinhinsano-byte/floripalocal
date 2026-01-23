@@ -5,29 +5,17 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { 
-    Home, 
-    Briefcase, 
-    Truck, 
-    Wrench, 
-    GraduationCap, 
-    PawPrint, 
-    Tag, 
-    Heart,
-    MapPin,
-    ChevronDown
-} from "lucide-react";
 import { Link } from "react-router-dom";
 
-const iconMap: Record<string, any> = {
-    "Imóveis": Home,
-    "Empregos": Briefcase,
-    "Veículos": Truck,
-    "Serviços": Wrench,
-    "Cursos": GraduationCap,
-    "Animais de Estimação": PawPrint,
-    "Comprar e Vender": Tag,
-    "Relacionamentos": Heart,
+const iconEmojiMap: Record<string, string> = {
+    "Imóveis": "🏠",
+    "Empregos": "💼",
+    "Veículos": "🚗",
+    "Serviços": "🛠️",
+    "Cursos": "🎓",
+    "Animais de Estimação": "🐾",
+    "Comprar e Vender": "🛒",
+    "Relacionamentos": "❤️",
 };
 
 const categoryRoutes: Record<string, string> = {
@@ -119,7 +107,7 @@ export const MobileCategoryMenu = () => {
         <div className="w-full bg-white md:hidden border-t border-gray-200">
             <Accordion type="single" collapsible className="w-full">
                 {categories.map((category, index) => {
-                    const Icon = iconMap[category.name] || Tag;
+                    const iconEmoji = iconEmojiMap[category.name] || "🏷️";
                     return (
                         <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-100">
                             {/* 
@@ -127,13 +115,12 @@ export const MobileCategoryMenu = () => {
                                 - Hide default chevron: [&>svg]:hidden (assuming shadcn implementation uses an svg child)
                                 - Add our own Plus icon that rotates
                             */}
-                            <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-gray-50 [&>svg]:hidden">
+                            <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-gray-50 [&>svg]:text-viva-green">
                                 <div className="flex items-center justify-between w-full">
                                     <div className="flex items-center gap-3 text-viva-green font-bold text-base">
-                                        <Icon className="w-6 h-6 stroke-[1.5] text-viva-green" />
+                                        <span className="text-xl leading-none w-6 text-center" aria-hidden="true">{iconEmoji}</span>
                                         <span>{category.name}</span>
                                     </div>
-                                    <ChevronDown className="w-5 h-5 text-viva-green transition-transform duration-200 group-data-[state=open]:rotate-180" />
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="bg-gray-50 px-4 pb-4 border-t border-gray-100">
@@ -170,13 +157,12 @@ export const MobileCategoryMenu = () => {
 
                 {/* Item Extra: Região e cidades */}
                  <AccordionItem value="item-region" className="border-b border-gray-100">
-                    <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-gray-50 [&>svg]:hidden">
+                    <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-gray-50 [&>svg]:text-viva-green">
                          <div className="flex items-center justify-between w-full">
                             <div className="flex items-center gap-3 text-viva-green font-bold text-base">
-                                <MapPin className="w-6 h-6 stroke-[1.5] text-viva-green" />
+                                <span className="text-xl leading-none w-6 text-center" aria-hidden="true">📍</span>
                                 <span>Região e cidades</span>
                             </div>
-                            <ChevronDown className="w-5 h-5 text-viva-green transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="bg-gray-50 px-4 py-4">
