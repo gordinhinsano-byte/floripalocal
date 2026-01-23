@@ -41,3 +41,10 @@ export async function loginWithGoogle() {
     if (error) throw error;
     return data;
 }
+
+export async function requestPasswordReset(email: string) {
+    const redirectTo = `${window.location.origin}/recuperar-senha`;
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+    if (error) throw error;
+    return data;
+}

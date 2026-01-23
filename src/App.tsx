@@ -12,6 +12,7 @@ import CategoryPage from "./pages/CategoryPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import UserDashboard from "./pages/UserDashboard";
 import PostAdPage from "./pages/PostAdPage";
 import PromoteAdPage from "./pages/PromoteAdPage";
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/esqueci-minha-senha" element={<ForgotPasswordPage />} />
+            <Route path="/recuperar-senha" element={<ResetPasswordPage />} />
             <Route path="/painel" element={<UserDashboard />} />
             <Route path="/meus-anuncios" element={<UserDashboard />} />
             <Route path="/publicar-anuncio" element={<PostAdPage />} />

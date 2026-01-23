@@ -2,13 +2,30 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { toast } from "sonner";
+import { requestPasswordReset } from "@/services/auth";
 
 export default function ForgotPasswordPage() {
     const [submitted, setSubmitted] = useState(false);
+    const [email, setEmail] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitted(true);
+        if (!email.trim()) {
+            toast.error("Digite seu email.");
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await requestPasswordReset(email.trim());
+            setSubmitted(true);
+        } catch (error: any) {
+            toast.error(error?.message || "Erro ao enviar link de recuperação.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -38,6 +55,8 @@ export default function ForgotPasswordPage() {
                                         type="email"
                                         autoComplete="email"
                                         required
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
                                         className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-viva-green focus:border-viva-green sm:text-sm"
                                         placeholder="Seu endereço de email cadastrado"
                                     />
@@ -46,9 +65,10 @@ export default function ForgotPasswordPage() {
                                 <div>
                                     <button
                                         type="submit"
+                                        disabled={loading}
                                         className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-viva-green hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-viva-green"
                                     >
-                                        Redefinir senha
+                                        {loading ? "Enviando..." : "Redefinir senha"}
                                     </button>
                                 </div>
                             </form>
@@ -65,7 +85,7 @@ export default function ForgotPasswordPage() {
                                 Se houver uma conta associada a este email, enviaremos um link para redefinir sua senha.
                             </p>
                             <Link
-                                to="/minha-conta"
+                                to="/login"
                                 className="font-medium text-viva-green hover:text-red-700"
                             >
                                 Voltar para o login
@@ -76,7 +96,7 @@ export default function ForgotPasswordPage() {
                     <div className="mt-6 text-center">
                         <p className="text-xs text-gray-500">
                             Lembrou sua senha?{" "}
-                            <Link to="/minha-conta" className="font-medium text-viva-green hover:text-red-700">
+                            <Link to="/login" className="font-medium text-viva-green hover:text-red-700">
                                 Entrar
                             </Link>
                         </p>
