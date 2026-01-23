@@ -11,7 +11,7 @@ export const CategorySection = () => {
         </h2>
         <Link to="/publicar-anuncio">
           <Button
-            className="bg-viva-green hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition-colors flex items-center gap-2 uppercase tracking-wider text-sm"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition-colors flex items-center gap-2 uppercase tracking-wider text-sm"
           >
             <PlusCircle className="w-5 h-5" />
             Inserir Anúncio

@@ -254,7 +254,7 @@ export const HeroSection = () => {
             {/* Mobile: Post Ad Button (Between Search and Categories) */}
             <button 
                 onClick={() => navigate('/publicar-anuncio')}
-                className="md:hidden bg-[#ff7f00] hover:bg-[#e67300] text-white px-8 py-3.5 flex items-center justify-center gap-2 transition-colors font-bold border-t border-white/20 rounded-none"
+                className="md:hidden bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 flex items-center justify-center gap-2 transition-colors font-bold border-t border-white/20 rounded-none"
             >
               <PlusCircle className="w-5 h-5" />
               <span>Inserir Anúncio</span>

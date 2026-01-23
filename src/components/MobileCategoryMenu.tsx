@@ -15,7 +15,7 @@ import {
     Tag, 
     Heart,
     MapPin,
-    PlusCircle // Usando PlusCircle ou apenas Plus estilizado
+    ChevronDown
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -129,13 +129,11 @@ export const MobileCategoryMenu = () => {
                             */}
                             <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-gray-50 [&>svg]:hidden">
                                 <div className="flex items-center justify-between w-full">
-                                    <div className="flex items-center gap-3 text-gray-700 font-normal text-base">
-                                        <Icon className="w-6 h-6 stroke-[1.5]" />
+                                    <div className="flex items-center gap-3 text-viva-green font-bold text-base">
+                                        <Icon className="w-6 h-6 stroke-[1.5] text-viva-green" />
                                         <span>{category.name}</span>
                                     </div>
-                                    <div className="rounded-full border border-gray-400 p-0.5 transition-transform duration-200 group-data-[state=open]:rotate-45">
-                                        <PlusCircle className="w-5 h-5 text-gray-500 stroke-[1.5]" />
-                                    </div>
+                                    <ChevronDown className="w-5 h-5 text-viva-green transition-transform duration-200 group-data-[state=open]:rotate-180" />
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="bg-gray-50 px-4 pb-4 border-t border-gray-100">
@@ -174,13 +172,11 @@ export const MobileCategoryMenu = () => {
                  <AccordionItem value="item-region" className="border-b border-gray-100">
                     <AccordionTrigger className="px-4 py-4 hover:no-underline hover:bg-gray-50 [&>svg]:hidden">
                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-3 text-gray-700 font-normal text-base">
-                                <MapPin className="w-6 h-6 stroke-[1.5]" />
+                            <div className="flex items-center gap-3 text-viva-green font-bold text-base">
+                                <MapPin className="w-6 h-6 stroke-[1.5] text-viva-green" />
                                 <span>Região e cidades</span>
                             </div>
-                            <div className="rounded-full border border-gray-400 p-0.5 transition-transform duration-200 group-data-[state=open]:rotate-45">
-                                <PlusCircle className="w-5 h-5 text-gray-500 stroke-[1.5]" />
-                            </div>
+                            <ChevronDown className="w-5 h-5 text-viva-green transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="bg-gray-50 px-4 py-4">

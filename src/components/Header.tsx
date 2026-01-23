@@ -73,7 +73,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
               <User className="w-4 h-4" />
               Minha Conta
             </Link>
-            <Link to="/publicar-anuncio" className="bg-viva-green hover:bg-viva-green/90 text-white text-sm font-bold px-5 py-2.5 rounded shadow-sm transition-colors flex items-center gap-2">
+            <Link to="/publicar-anuncio" className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-5 py-2.5 rounded shadow-sm transition-colors flex items-center gap-2">
               <PlusCircle className="w-4 h-4" />
               Inserir anúncio
             </Link>
@@ -119,7 +119,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
              <Link to="/minha-conta" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 text-gray-700 py-3 border-b border-gray-100 hover:bg-gray-50 px-2 rounded">
                <User className="w-5 h-5 text-viva-green" /> Minha Conta
              </Link>
-             <Link to="/publicar-anuncio" onClick={() => setIsMobileMenuOpen(false)} className="bg-viva-green text-white text-center font-bold py-3.5 rounded mt-2 shadow-sm">
+             <Link to="/publicar-anuncio" onClick={() => setIsMobileMenuOpen(false)} className="bg-emerald-600 hover:bg-emerald-700 text-white text-center font-bold py-3.5 rounded mt-2 shadow-sm transition-colors">
                Inserir anúncio
              </Link>
           </div>
