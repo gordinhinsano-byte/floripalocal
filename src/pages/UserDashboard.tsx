@@ -324,7 +324,7 @@ const MyAdsTab = ({ ads, onUpdate }: { ads: Listing[], onUpdate: () => void }) =
                                 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <div className={`w-2.5 h-2.5 rounded-full ${ad.status === 'active' ? 'bg-red-500' : 'bg-gray-400'}`}></div>
+                                        <div className={`w-2.5 h-2.5 rounded-full ${ad.status === 'active' ? 'bg-emerald-600' : 'bg-gray-400'}`}></div>
                                         <span className="font-bold text-gray-700 text-sm">
                                             {ad.status === 'active' ? 'Publicado' : (ad.status === 'draft' ? 'Rascunho' : 'Pausado')}
                                         </span>

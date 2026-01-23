@@ -469,9 +469,9 @@ export default function AdDetail() {
                                                     return (
                                                         <div key={service} className="flex items-center gap-2 text-[#333]">
                                                             {enabled ? (
-                                                                <Check className="w-4 h-4 text-viva-green flex-shrink-0" />
+                                                                <Check className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                                                             ) : (
-                                                                <X className="w-4 h-4 text-red-500 flex-shrink-0" />
+                                                                <X className="w-4 h-4 text-red-600 flex-shrink-0" />
                                                             )}
                                                             <span>{service}</span>
                                                         </div>
@@ -662,7 +662,7 @@ export default function AdDetail() {
                             {/* Safety Tips */}
                             <div className="bg-white border border-gray-300 p-4 rounded-sm shadow-sm text-[11px] text-[#666]">
                                 <div className="flex items-center gap-2 mb-3 font-bold text-[#333]">
-                                    <CheckCircle2 className="w-4 h-4 text-viva-green" />
+                                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                                     Dicas de Segurança
                                 </div>
                                 <ul className="list-disc pl-4 space-y-1">

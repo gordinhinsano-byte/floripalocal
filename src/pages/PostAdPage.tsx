@@ -372,7 +372,7 @@ export default function PostAdPage() {
                                             <label key={service} className="flex items-center gap-2 cursor-pointer select-none">
                                                 <input
                                                     type="checkbox"
-                                                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-600 border-gray-300 rounded"
                                                     checked={checked}
                                                     onChange={(e) => toggle(service, e.target.checked)}
                                                 />
@@ -388,7 +388,7 @@ export default function PostAdPage() {
                                             <label key={service} className="flex items-center gap-2 cursor-pointer select-none">
                                                 <input
                                                     type="checkbox"
-                                                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-600 border-gray-300 rounded"
                                                     checked={checked}
                                                     onChange={(e) => toggle(service, e.target.checked)}
                                                 />
@@ -425,7 +425,7 @@ export default function PostAdPage() {
                                         <label key={opt} className="flex items-center gap-2 cursor-pointer select-none">
                                             <input
                                                 type="checkbox"
-                                                className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                                className="h-4 w-4 text-emerald-600 focus:ring-emerald-600 border-gray-300 rounded"
                                                 checked={checked}
                                                 onChange={(e) => toggle(opt, e.target.checked)}
                                             />
@@ -461,7 +461,7 @@ export default function PostAdPage() {
 
                     {filter.type === 'select' || filter.type === 'range' ? (
                         <select
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white text-gray-600"
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none bg-white text-gray-600"
                             onChange={(e) => updateFormData(filter.key, e.target.value)}
                         >
                             <option value="">Escolha uma opção</option>
@@ -476,7 +476,7 @@ export default function PostAdPage() {
                             <input
                                 type="checkbox"
                                 id={filter.key}
-                                className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-emerald-600 focus:ring-emerald-600 border-gray-300 rounded"
                                 onChange={(e) => updateFormData(filter.key, e.target.checked)}
                             />
                             <label htmlFor={filter.key} className="ml-2 block text-sm text-gray-700">{filter.name}</label>
@@ -488,7 +488,7 @@ export default function PostAdPage() {
                                 type="number"
                                 min={0}
                                 onKeyDown={preventNegativeKey}
-                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none"
                                 onChange={(e) => {
                                     const v = e.target.value;
                                     if (v.startsWith("-")) {
@@ -502,7 +502,7 @@ export default function PostAdPage() {
                     ) : (
                         <input
                             type="text"
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none"
                             onChange={(e) => updateFormData(filter.key, e.target.value)}
                         />
                     )}
@@ -537,9 +537,9 @@ export default function PostAdPage() {
                                             {Object.entries(groupedCategories).map(([group, items]) => (
                                                 items.length > 0 && (
                                                     <SelectGroup key={group}>
-                                                        <SelectLabel className="bg-[#8cce3b] text-white/50 text-center font-normal py-1 border-b border-[#8cce3b]">-- {group} --</SelectLabel>
+                                                        <SelectLabel className="bg-viva-green text-white text-center font-semibold py-1 border-b border-viva-green">-- {group} --</SelectLabel>
                                                         {items.map(item => (
-                                                            <SelectItem key={item.id} value={item.slug} className="pl-8 focus:bg-blue-600 focus:text-white cursor-pointer py-1.5">
+                                                            <SelectItem key={item.id} value={item.slug} className="pl-8 focus:bg-gray-100 focus:text-gray-900 cursor-pointer py-1.5">
                                                                 {item.label}
                                                             </SelectItem>
                                                         ))}
@@ -556,7 +556,7 @@ export default function PostAdPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setEscortFlowMode("new")}
-                                                className={`text-left p-4 border rounded transition-colors ${escortFlowMode === "new" ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:bg-gray-50"}`}
+                                                className={`text-left p-4 border rounded transition-colors ${escortFlowMode === "new" ? "border-emerald-600 bg-emerald-50" : "border-gray-200 hover:bg-gray-50"}`}
                                             >
                                                 <div className="font-bold text-gray-800">Criar novo</div>
                                                 <div className="text-sm text-gray-600">Preencher o anúncio manualmente</div>
@@ -564,7 +564,7 @@ export default function PostAdPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setEscortFlowMode("import")}
-                                                className={`text-left p-4 border rounded transition-colors ${escortFlowMode === "import" ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:bg-gray-50"}`}
+                                                className={`text-left p-4 border rounded transition-colors ${escortFlowMode === "import" ? "border-emerald-600 bg-emerald-50" : "border-gray-200 hover:bg-gray-50"}`}
                                             >
                                                 <div className="font-bold text-gray-800">Importar de outro site</div>
                                                 <div className="text-sm text-gray-600">Cole a URL e a gente puxa os dados</div>
@@ -605,7 +605,7 @@ export default function PostAdPage() {
                                                 type="text"
                                                 value={formData.title}
                                                 onChange={(e) => updateFormData('title', e.target.value)}
-                                                className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors"
+                                                className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-emerald-600 transition-colors"
                                             />
                                             <p className="text-xs text-gray-500 mt-1">Insira pelo menos 15 caracteres</p>
                                         </div>
@@ -616,7 +616,7 @@ export default function PostAdPage() {
                                                 rows={8}
                                                 value={formData.description}
                                                 onChange={(e) => updateFormData('description', e.target.value)}
-                                                className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-orange-500 transition-colors resize-y"
+                                                className="w-full px-4 py-2.5 border border-gray-300 rounded text-gray-700 focus:outline-none focus:border-emerald-600 transition-colors resize-y"
                                             ></textarea>
                                         </div>
                                     </>
@@ -632,7 +632,7 @@ export default function PostAdPage() {
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Você é *</label>
                                         <select
-                                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none bg-white text-gray-600"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none bg-white text-gray-600"
                                             onChange={(e) => updateFormData('userType', e.target.value)}
                                         >
                                             <option value="">Escolha uma opção</option>
@@ -645,11 +645,11 @@ export default function PostAdPage() {
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Tipo Oferta *</label>
                                         <div className="flex flex-col gap-2 pt-1">
                                             <label className="flex items-center gap-2">
-                                                <input type="checkbox" className="text-orange-500 focus:ring-orange-500" defaultChecked />
+                                                <input type="checkbox" className="text-emerald-600 focus:ring-emerald-600" defaultChecked />
                                                 <span className="text-sm text-gray-600">Vendo</span>
                                             </label>
                                             <label className="flex items-center gap-2">
-                                                <input type="checkbox" className="text-orange-500 focus:ring-orange-500" />
+                                                <input type="checkbox" className="text-emerald-600 focus:ring-emerald-600" />
                                                 <span className="text-sm text-gray-600">Procuro</span>
                                             </label>
                                         </div>
@@ -667,7 +667,7 @@ export default function PostAdPage() {
                                                     type="number"
                                                     min={0}
                                                     onKeyDown={preventNegativeKey}
-                                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none"
                                                     onChange={(e) => {
                                                         const v = e.target.value;
                                                         if (v.startsWith("-")) {
@@ -691,7 +691,7 @@ export default function PostAdPage() {
                                                     type="text"
                                                     placeholder="Rua, número"
                                                     value={formData.address || ''}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none"
                                                     onChange={(e) => updateFormData('address', e.target.value)}
                                                 />
                                             </div>
@@ -703,7 +703,7 @@ export default function PostAdPage() {
                                                     type="text"
                                                     placeholder="Ex: Centro"
                                                     value={formData.neighborhood || ''}
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 outline-none"
                                                     onChange={(e) => updateFormData('neighborhood', e.target.value)}
                                                 />
                                             </div>
@@ -779,7 +779,7 @@ export default function PostAdPage() {
                             <button
                                 onClick={step === 1 ? handleNext : (step === 2 ? handleStep2Submit : handlePublish)}
                                 disabled={isSubmitting}
-                                className="px-8 py-3 bg-[#ff7f00] text-white font-bold rounded shadow-sm hover:bg-[#e67300] transition-colors text-lg disabled:opacity-50"
+                                className="px-8 py-3 bg-emerald-600 text-white font-bold rounded shadow-sm hover:bg-emerald-700 transition-colors text-lg disabled:opacity-50"
                             >
                                 {isSubmitting
                                     ? 'Processando...'
