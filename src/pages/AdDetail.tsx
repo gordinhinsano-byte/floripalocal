@@ -125,7 +125,7 @@ export default function AdDetail() {
     }
 
     // Prepare display data
-    const locationStr = `${ad.city ? ad.city + ' - ' : ''}${ad.state || ''}`;
+    const locationStr = `${ad.neighborhood ? ad.neighborhood + ', ' : ''}${ad.city ? ad.city + ' - ' : ''}${ad.state || ''}`;
     // Use Joined Profile Data if available, fallback to legacy
     const publisherName = ad.profiles?.name || "Anunciante"; 
     const userSince = new Date(ad.created_at).toLocaleDateString();
@@ -486,8 +486,9 @@ export default function AdDetail() {
                                             <>
                                                 <div className="mb-1">{ad.state}</div>
                                                 {ad.city && <div>{ad.city} {ad.state.replace('Estado', '').trim()}</div>}
+                                                {ad.neighborhood && <div>{ad.neighborhood}</div>}
                                                 <a 
-                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${ad.city || ''} ${ad.state || ''}`)}`} 
+                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${ad.neighborhood || ''} ${ad.city || ''} ${ad.state || ''}`)}`} 
                                                     target="_blank" 
                                                     rel="noopener noreferrer" 
                                                     className="block text-[#f90] hover:underline text-xs mt-1"

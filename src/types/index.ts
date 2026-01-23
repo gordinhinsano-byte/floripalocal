@@ -20,6 +20,7 @@ export interface Listing {
     category_id: string;
     type: string | null; // produto | serviço | emprego
     city: string | null;
+    neighborhood: string | null;
     state: string | null;
     status: 'draft' | 'active' | 'inactive';
     owner_id: string;

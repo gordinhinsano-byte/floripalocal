@@ -87,7 +87,7 @@ export default function CategoryPage() {
     });
 
     // Prepare Filters UI
-    const staticFilters = CATEGORY_FILTERS[cleanSlug as keyof typeof CATEGORY_FILTERS]?.filters || [];
+    const staticFilters = (CATEGORY_FILTERS[cleanSlug as keyof typeof CATEGORY_FILTERS]?.filters || []).filter((f: any) => !f.hideInFilter);
 
     // Helper for parsing prices (BR format support)
     const parsePrice = (value: any) => {

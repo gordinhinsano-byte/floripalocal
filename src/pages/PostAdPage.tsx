@@ -54,6 +54,7 @@ export default function PostAdPage() {
         offerType: 'sell',
         price: '',
         address: '',
+        neighborhood: '',
         city: '',
         services: []
     });
@@ -184,7 +185,7 @@ export default function PostAdPage() {
             if (!category) throw new Error("Categoria inválida");
 
             // 2. Extract standard fields vs attributes
-            const { title, description, price, state, city, userType, offerType, address, ...otherAttributes } = formData;
+            const { title, description, price, state, city, neighborhood, userType, offerType, address, ...otherAttributes } = formData;
             const computedPrice = categorySlug.startsWith("acompanhantes") ? Number(otherAttributes.rate_1h) : Number(price);
 
             // 3. Create Listing (Draft)
@@ -196,6 +197,7 @@ export default function PostAdPage() {
                 type: offerType === 'sell' ? 'produto' : 'serviço', // Simplified mapping
                 state,
                 city: city || address, // Fallback
+                neighborhood,
                 attributes: { ...otherAttributes, userType, address },
                 images: [] // Will update after upload
             });
@@ -602,15 +604,32 @@ export default function PostAdPage() {
                                     )}
 
                                     <div className="col-span-1 md:col-span-2">
-                                        <label className="block text-sm font-bold text-gray-700 mb-1">
-                                            Endereço {!categorySlug.startsWith("acompanhantes") && <span>*</span>}
-                                        </label>
-                                        <input
-                                            type="text"
-                                            placeholder="Coloque rua, número e cidade (se quiser). (Ex.: Av. Paulista , 1000)"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                                            onChange={(e) => updateFormData('address', e.target.value)}
-                                        />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                                    Endereço {!categorySlug.startsWith("acompanhantes") && <span>*</span>}
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Rua, número"
+                                                    value={formData.address || ''}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                    onChange={(e) => updateFormData('address', e.target.value)}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-1">
+                                                    Bairro
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Ex: Centro"
+                                                    value={formData.neighborhood || ''}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                                                    onChange={(e) => updateFormData('neighborhood', e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
