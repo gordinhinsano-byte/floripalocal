@@ -9,6 +9,7 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [hasSession, setHasSession] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [saving, setSaving] = useState(false);
@@ -16,6 +17,27 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     async function bootstrap() {
       try {
+        const hashParams = new URLSearchParams(
+          window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash,
+        );
+        const hashError = hashParams.get("error");
+        const hashErrorDescription = hashParams.get("error_description");
+        const hashErrorCode = hashParams.get("error_code");
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+        const type = hashParams.get("type");
+
+        if (hashError) {
+          setLinkError(
+            hashErrorDescription ||
+              (hashErrorCode ? `Erro: ${hashErrorCode}` : "Link inválido ou expirado."),
+          );
+          window.history.replaceState({}, "", window.location.pathname);
+        } else if (accessToken && refreshToken && (type === "recovery" || type === "signup" || type === "magiclink")) {
+          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+          window.history.replaceState({}, "", window.location.pathname);
+        }
+
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
         if (code) {
@@ -74,6 +96,16 @@ export default function ResetPasswordPage() {
 
           {loading ? (
             <div className="text-sm text-gray-600">Carregando...</div>
+          ) : linkError ? (
+            <div className="space-y-4">
+              <div className="text-sm text-gray-600">{linkError}</div>
+              <Link
+                to="/esqueci-minha-senha"
+                className="w-full inline-flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-bold text-white bg-viva-green hover:bg-red-700 transition-colors"
+              >
+                Pedir novo link
+              </Link>
+            </div>
           ) : hasSession ? (
             <form className="space-y-4" onSubmit={handleSave}>
               <div>
@@ -131,4 +163,3 @@ export default function ResetPasswordPage() {
     </div>
   );
 }
-

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import AluguelCasas from "./pages/AluguelCasas";
 import AdDetail from "./pages/AdDetail";
@@ -26,6 +26,25 @@ import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
+const AuthHashRedirector = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const hash = location.hash || "";
+    if (!hash) return;
+    const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+    const type = params.get("type");
+    const accessToken = params.get("access_token");
+    const error = params.get("error");
+    if ((type === "recovery" || !!accessToken || !!error) && location.pathname !== "/recuperar-senha") {
+      navigate(`/recuperar-senha${hash}`, { replace: true });
+    }
+  }, [location.hash, location.pathname, navigate]);
+
+  return null;
+};
+
 const App = () => {
   useEffect(() => {
     async function debugAuth() {
@@ -44,6 +63,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AuthHashRedirector />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/alugar-casa-apartamento" element={<AluguelCasas />} />
