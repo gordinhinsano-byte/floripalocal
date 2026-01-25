@@ -146,8 +146,8 @@ export const Footer = () => {
               <ul className="space-y-1">
                 {section.links.map((link) => (
                   <li key={link.slug + link.label}>
-                    <Link 
-                      to={`/c/${link.slug}`} 
+                    <Link
+                      to={`/c/${link.slug}`}
                       className="text-[11px] text-gray-400 hover:text-white transition-colors leading-tight block"
                     >
                       {link.label}
@@ -176,6 +176,7 @@ export const Footer = () => {
               <a href="#" className="hover:text-white transition-colors">Quem somos</a>
               <Link to="/termos-de-uso" className="hover:text-white transition-colors">Termos de Uso</Link>
               <Link to="/politica-de-privacidade" className="hover:text-white transition-colors">Política de Privacidade</Link>
+              <Link to="/sitemap" className="hover:text-white transition-colors">Mapa do Site</Link>
               <a href="#" className="hover:text-white transition-colors">Política de Cookies</a>
               <a href="#" className="hover:text-white transition-colors">Contato</a>
               <Link to="/ajuda" className="hover:text-white transition-colors">Ajuda</Link>

@@ -21,6 +21,7 @@ import HelpPage from "./pages/HelpPage";
 import EditAdPage from "./pages/EditAdPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import Sitemap from "./pages/Sitemap";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 
@@ -82,6 +83,7 @@ const App = () => {
             <Route path="/ajuda" element={<HelpPage />} />
             <Route path="/termos-de-uso" element={<TermsPage />} />
             <Route path="/politica-de-privacidade" element={<PrivacyPolicyPage />} />
+            <Route path="/sitemap" element={<Sitemap />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

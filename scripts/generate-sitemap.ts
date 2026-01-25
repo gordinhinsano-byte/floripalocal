@@ -36,6 +36,10 @@ interface Category {
     created_at: string;
 }
 
+import { categoryRoutes } from '../src/data/categories';
+
+// ... (imports)
+
 async function generateSitemap() {
     console.log('🚀 Starting sitemap generation...\n');
 
@@ -54,18 +58,9 @@ async function generateSitemap() {
 
         console.log(`✅ Found ${listings?.length || 0} active listings\n`);
 
-        // Fetch all categories
-        console.log('📂 Fetching categories...');
-        const { data: categories, error: categoriesError } = await supabase
-            .from('categories')
-            .select('slug, updated_at, created_at')
-            .order('slug');
-
-        if (categoriesError) {
-            throw new Error(`Failed to fetch categories: ${categoriesError.message}`);
-        }
-
-        console.log(`✅ Found ${categories?.length || 0} categories\n`);
+        // Use static categories
+        const categories = Object.values(categoryRoutes);
+        console.log(`✅ Found ${categories.length} static categories\n`);
 
         // Generate XML
         console.log('🔨 Generating XML...');
@@ -94,10 +89,12 @@ async function generateSitemap() {
         }
 
         // Add categories
-        for (const category of categories || []) {
-            const lastmod = (category.updated_at || category.created_at).split('T')[0];
+        for (const path of categories) {
+            // path is like "/c/slug"
+            const fullUrl = `${baseUrl}${path}`;
+            const lastmod = new Date().toISOString().split('T')[0]; // Categories update daily-ish
             xml += '  <url>\n';
-            xml += `    <loc>${baseUrl}/c/${category.slug}</loc>\n`;
+            xml += `    <loc>${fullUrl}</loc>\n`;
             xml += `    <lastmod>${lastmod}</lastmod>\n`;
             xml += '    <changefreq>daily</changefreq>\n';
             xml += '    <priority>0.9</priority>\n';
