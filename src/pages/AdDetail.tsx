@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { VisibleBreadcrumb } from "@/components/VisibleBreadcrumb";
 import { useState, useEffect, type SVGProps } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,6 +8,7 @@ import { getListingById, incrementListingView, incrementListingClick } from "@/s
 import { createConversation, sendMessage } from "@/services/messages";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
 import {
     Heart,
     Phone,
@@ -19,6 +21,15 @@ import {
     Check,
     X
 } from "lucide-react";
+import {
+    normalizeCity,
+    normalizeRegion,
+    cleanTitle,
+    extractFirstService,
+    generateShortDescription,
+    calculatePriceRange
+} from "@/utils/seo";
+import { generateBreadcrumbSchema, generateServiceSchema } from "@/utils/schema";
 
 const WhatsAppIcon = (props: SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 448 512" fill="currentColor" aria-hidden="true" {...props}>
@@ -34,7 +45,7 @@ export default function AdDetail() {
     const [messageText, setMessageText] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
-    
+
     // Email Modal State
     const [showEmailModal, setShowEmailModal] = useState(false);
     const [emailStep, setEmailStep] = useState(1);
@@ -89,10 +100,10 @@ export default function AdDetail() {
         try {
             // 1. Create or Get Conversation
             const conversation = await createConversation(ad.id, ad.owner_id);
-            
+
             // 2. Send Message
             await sendMessage(conversation.id, messageText);
-            
+
             toast.success("Mensagem enviada!");
             setMessageText("");
             navigate("/minha-conta"); // Go to chat
@@ -133,8 +144,41 @@ export default function AdDetail() {
     // Prepare display data
     const locationStr = `${ad.neighborhood ? ad.neighborhood + ', ' : ''}${ad.city ? ad.city + ' - ' : ''}${ad.state || ''}`;
     // Use Joined Profile Data if available, fallback to legacy
-    const publisherName = ad.profiles?.name || "Anunciante"; 
+    const publisherName = ad.profiles?.name || "Anunciante";
     const userSince = new Date(ad.created_at).toLocaleDateString();
+
+    // SEO: Normalized location data
+    const normalizedCity = normalizeCity(ad);
+    const normalizedRegion = normalizeRegion(ad);
+    const serviceLabel = extractFirstService(ad);
+    const seoTitle = `${cleanTitle(ad.title, 55)} – ${normalizedCity}, ${normalizedRegion} | FloripaLocal`;
+    const seoH1 = `${ad.title} — ${serviceLabel} em ${normalizedCity} (${normalizedRegion})`;
+    const shortDescription = generateShortDescription(ad.description);
+    const priceRange = calculatePriceRange(ad);
+
+    // SEO: Breadcrumb data
+    const breadcrumbItems = [
+        { label: 'Classificados', url: '/' },
+        ...(ad.categories ? [{ label: ad.categories.name, url: `/c/${ad.categories.slug}` }] : []),
+        { label: ad.title }
+    ];
+
+    const breadcrumbSchema = generateBreadcrumbSchema(
+        breadcrumbItems.map((item, index) => ({
+            name: item.label,
+            url: index === breadcrumbItems.length - 1
+                ? `https://www.floripalocal.com/anuncio/${id}`
+                : `https://www.floripalocal.com${item.url}`
+        }))
+    );
+
+    const serviceSchema = generateServiceSchema(
+        ad,
+        normalizedCity,
+        serviceLabel,
+        shortDescription,
+        priceRange
+    );
 
     // Default image if none
     // Ensure images is an array, sometimes JSONB comes as string or null
@@ -233,6 +277,30 @@ export default function AdDetail() {
 
     return (
         <div className="min-h-screen bg-[#f6f8fb] flex flex-col font-sans text-gray-600">
+            <Helmet>
+                {/* SEO: Canonical URL */}
+                <link rel="canonical" href={`https://www.floripalocal.com/anuncio/${id}`} />
+
+                {/* SEO: Robots */}
+                <meta name="robots" content="index,follow" />
+
+                {/* SEO: Title */}
+                <title>{seoTitle}</title>
+
+                {/* SEO: Description */}
+                <meta name="description" content={shortDescription} />
+
+                {/* Schema.org: BreadcrumbList */}
+                <script type="application/ld+json">
+                    {JSON.stringify(breadcrumbSchema)}
+                </script>
+
+                {/* Schema.org: Service + LocalBusiness */}
+                <script type="application/ld+json">
+                    {JSON.stringify(serviceSchema)}
+                </script>
+            </Helmet>
+
             <Header />
 
             {/* Sticky Top Bar */}
@@ -247,7 +315,7 @@ export default function AdDetail() {
                         </div>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
-                        <button 
+                        <button
                             type="button"
                             onClick={(e) => {
                                 e.preventDefault();
@@ -267,7 +335,7 @@ export default function AdDetail() {
                             <Phone className="w-4 h-4" />
                             <span>Ver Telefone</span>
                         </button>
-                        <button 
+                        <button
                             type="button"
                             onClick={(e) => {
                                 e.preventDefault();
@@ -286,21 +354,7 @@ export default function AdDetail() {
             </div>
 
             {/* Breadcrumb */}
-            <div className="bg-[#f6f8fb] text-[11px] py-3 px-4">
-                <div className="container mx-auto flex items-center gap-1 text-gray-500 overflow-x-auto whitespace-nowrap">
-                    <Link to="/" className="hover:underline">Classificados</Link>
-                    <span>&gt;</span>
-                    {(ad as any).categories && (
-                        <>
-                            <Link to={`/c/${(ad as any).categories.slug}`} className="hover:underline text-viva-green">
-                                {(ad as any).categories.name}
-                            </Link>
-                            <span>&gt;</span>
-                        </>
-                    )}
-                    <span className="text-gray-400 truncate max-w-[200px]">{ad.title}</span>
-                </div>
-            </div>
+            <VisibleBreadcrumb items={breadcrumbItems} />
 
             <main className="flex-1 container mx-auto px-4 pb-12">
                 <div className="flex flex-col lg:flex-row gap-6">
@@ -321,7 +375,7 @@ export default function AdDetail() {
                             )}
 
                             <div className="flex justify-between items-start mb-2">
-                                <h1 className="text-[22px] font-bold text-[#333] leading-tight max-w-[70%]">{ad.title}</h1>
+                                <h1 className="text-[22px] font-bold text-[#333] leading-tight max-w-[70%]">{seoH1}</h1>
                                 <button className="text-gray-400 hover:text-red-500 transition-colors ml-4">
                                     <Heart className="w-6 h-6" />
                                 </button>
@@ -342,7 +396,11 @@ export default function AdDetail() {
                                 <div className="relative aspect-[4/3] bg-gray-200 mb-1 overflow-hidden cursor-pointer group rounded-sm">
                                     <img
                                         src={displayImages[safeActiveImage]}
-                                        alt={ad.title}
+                                        alt={`${serviceLabel} em ${normalizedCity} – ${ad.title}`}
+                                        loading="eager"
+                                        decoding="async"
+                                        width="800"
+                                        height="600"
                                         className="w-full h-full object-cover"
                                     />
                                     <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 flex items-center gap-1 rounded">
@@ -381,7 +439,7 @@ export default function AdDetail() {
                                                 onClick={() => setActiveImage(idx)}
                                                 className={`w-[75px] h-[56px] flex-shrink-0 border-2 ${safeActiveImage === idx ? 'border-[#f90]' : 'border-transparent hover:border-gray-300'}`}
                                             >
-                                                <img src={img} alt="" className="w-full h-full object-cover" />
+                                                <img src={img} alt="" loading="lazy" width="75" height="56" className="w-full h-full object-cover" />
                                             </button>
                                         ))}
                                     </div>
@@ -510,10 +568,10 @@ export default function AdDetail() {
                                                 <div className="mb-1">{ad.state}</div>
                                                 {ad.city && <div>{ad.city} {ad.state.replace('Estado', '').trim()}</div>}
                                                 {ad.neighborhood && <div>{ad.neighborhood}</div>}
-                                                <a 
-                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${ad.neighborhood || ''} ${ad.city || ''} ${ad.state || ''}`)}`} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer" 
+                                                <a
+                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${ad.neighborhood || ''} ${ad.city || ''} ${ad.state || ''}`)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                     className="block text-[#f90] hover:underline text-xs mt-1"
                                                 >
                                                     Veja no google map
@@ -568,7 +626,7 @@ export default function AdDetail() {
                             <div className="text-[13px] text-[#333] whitespace-pre-line leading-relaxed font-sans mb-6">
                                 {ad.description}
                             </div>
-                            
+
                             {/* Info Bar (ID, User Since, Visits) - Moved here */}
                             <div className="flex flex-wrap gap-8 text-xs text-gray-500 pt-4 border-t border-gray-100">
                                 <div className="font-bold">
@@ -606,14 +664,14 @@ export default function AdDetail() {
                                 <div className="space-y-3">
                                     {/* Chat Form directly here */}
                                     <div id="message-box" className="border border-gray-200 p-3 rounded bg-gray-50">
-                                        <textarea 
+                                        <textarea
                                             className="w-full p-2 text-sm border border-gray-300 rounded mb-2 h-24 focus:outline-none focus:border-viva-green"
                                             placeholder={currentUser ? "Olá, tenho interesse..." : "Faça login para enviar mensagem"}
                                             value={messageText}
                                             onChange={(e) => setMessageText(e.target.value)}
                                             disabled={!currentUser}
                                         />
-                                        <button 
+                                        <button
                                             onClick={handleContact}
                                             disabled={isSending || !currentUser}
                                             className="w-full bg-viva-green hover:bg-red-700 text-white font-bold py-2 px-4 rounded-sm flex items-center justify-center gap-2 text-sm transition-colors shadow-sm disabled:opacity-50"
@@ -628,7 +686,7 @@ export default function AdDetail() {
                                         )}
                                     </div>
 
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             if (ad.profiles?.phone) {
                                                 alert(`Telefone: ${ad.profiles.phone}`);
@@ -642,7 +700,7 @@ export default function AdDetail() {
                                         Ver Telefone
                                     </button>
 
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             if (!whatsappHref) {
                                                 alert("WhatsApp não disponível");

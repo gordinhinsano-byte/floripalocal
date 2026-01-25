@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { VisibleBreadcrumb } from "@/components/VisibleBreadcrumb";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { FiltersPanel } from "@/components/FiltersPanel";
 import { AdultContentWarning } from "@/components/AdultContentWarning";
@@ -11,6 +12,10 @@ import { CATEGORY_FILTERS, CATEGORY_GROUP_MAP } from "@/constants/filters";
 import { ChevronDown, LayoutGrid, List, Search, Filter, Bell, X } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { cleanTitle } from "@/utils/seo";
+import { generateBreadcrumbSchema, generateItemListSchema } from "@/utils/schema";
+import { getCategoryIntroText } from "@/utils/categoryIntro";
 
 const GROUP_ORDER = [
     "Veículos",
@@ -32,15 +37,15 @@ export default function CategoryPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const cleanSlug = categorySlug || "";
-    
+
     // View Mode State
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-    
+
     // Favorites State
     const [favorites, setFavorites] = useState<string[]>([]);
 
     useEffect(() => {
-        getFavorites().then(setFavorites).catch(() => {}); // Silent fail if not logged in
+        getFavorites().then(setFavorites).catch(() => { }); // Silent fail if not logged in
     }, []);
 
     const handleToggleFavorite = async (e: React.MouseEvent, id: string) => {
@@ -93,9 +98,9 @@ export default function CategoryPage() {
     const parsePrice = (value: any) => {
         if (value === undefined || value === null || value === '') return NaN;
         if (typeof value === 'number') return value;
-        
+
         let str = String(value).trim();
-        
+
         // Handle BR format: 1.234,56
         if (str.includes(',')) {
             // Remove thousands separator (.) and replace decimal separator (,) with (.)
@@ -105,14 +110,14 @@ export default function CategoryPage() {
             // e.g. "1.200" -> 1200
             str = str.replace(/\./g, '');
         }
-        
+
         return parseFloat(str);
     };
 
     // Parse URL Params to SearchParams
     const attrs: Record<string, any> = {};
     const city = searchParams.get("city") || undefined;
-    
+
     // Robust extraction for Min/Max Price (handles both camelCase and snake_case keys + parsing)
     const paramPriceMin = searchParams.get("priceMin") || searchParams.get("price_min");
     const paramPriceMax = searchParams.get("priceMax") || searchParams.get("price_max");
@@ -150,7 +155,7 @@ export default function CategoryPage() {
     const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
     const categoryRef = useRef<HTMLDivElement>(null);
     const [showAllLocations, setShowAllLocations] = useState(false);
-    
+
     // NEW MOBILE STATES
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
@@ -229,7 +234,7 @@ export default function CategoryPage() {
     const checkboxAccum: Record<string, string[]> = {};
     for (const [k, v] of searchParams.entries()) {
         if (['city', 'priceMin', 'priceMax', 'advertiserType', 'q', 'loc', 'state', 'has_photos', 'sort'].includes(k)) continue;
-        
+
         // Skip range filter keys (min/max) as they are handled separately
         if (k.endsWith('_min') || k.endsWith('_max')) continue;
 
@@ -404,13 +409,13 @@ export default function CategoryPage() {
                 const base = (mMin ? mMin[1] : (mMax ? mMax[1] : '')).trim();
                 const rateKeys = new Set(['rate_30m', 'rate_1h', 'rate_2h']);
                 let raw = ad.attributes?.[base];
-                
+
                 if (base === 'price') {
                     raw = ad.price;
                 } else if ((raw === undefined || raw === null) && rateKeys.has(base)) {
                     raw = ad.price;
                 }
-                
+
                 // Use parsePrice for robust BR number parsing (1.200,00 -> 1200.00; 50.000 -> 50000)
                 const adVal = parsePrice(raw);
 
@@ -498,7 +503,7 @@ export default function CategoryPage() {
     const toggleAdvertiserType = (type: 'private' | 'professional') => {
         const newParams = new URLSearchParams(searchParams);
         const current = newParams.get("advertiserType");
-        
+
         if (current === type) {
             newParams.delete("advertiserType");
         } else {
@@ -508,6 +513,23 @@ export default function CategoryPage() {
     };
 
     const categoryTitle = category?.name || cleanSlug.replace(/-/g, ' ').toUpperCase();
+
+    // SEO: Generate unique title and intro text
+    const seoTitle = `${cleanTitle(categoryTitle, 50)} | FloripaLocal`;
+    const introText = getCategoryIntroText(cleanSlug, categoryTitle);
+
+    // SEO: Breadcrumb data
+    const breadcrumbItems = [
+        { label: 'Classificados', url: '/' },
+        { label: categoryTitle }
+    ];
+
+    const breadcrumbSchema = generateBreadcrumbSchema([
+        { name: 'Classificados', url: 'https://www.floripalocal.com/' },
+        { name: categoryTitle, url: `https://www.floripalocal.com/c/${cleanSlug}` }
+    ]);
+
+    const itemListSchema = generateItemListSchema(categoryTitle, regularAds, cleanSlug);
 
     // Toggle Photos Filter
     const togglePhotosFilter = () => {
@@ -524,36 +546,60 @@ export default function CategoryPage() {
 
     return (
         <div className="min-h-screen flex flex-col bg-white">
+            <Helmet>
+                {/* SEO: Canonical URL */}
+                <link rel="canonical" href={`https://www.floripalocal.com/c/${cleanSlug}`} />
+
+                {/* SEO: Robots */}
+                <meta name="robots" content="index,follow" />
+
+                {/* SEO: Title */}
+                <title>{seoTitle}</title>
+
+                {/* SEO: Description */}
+                <meta name="description" content={introText.substring(0, 160)} />
+
+                {/* Schema.org: BreadcrumbList */}
+                <script type="application/ld+json">
+                    {JSON.stringify(breadcrumbSchema)}
+                </script>
+
+                {/* Schema.org: ItemList */}
+                <script type="application/ld+json">
+                    {JSON.stringify(itemListSchema)}
+                </script>
+            </Helmet>
+
             {isAdultCategory && (
                 <AdultContentWarning
                     onAccept={() => { }}
                     onDecline={() => navigate("/")}
                 />
             )}
-            
+
             {/* MOBILE FILTERS MODAL (OVERLAY) */}
             {isMobileFiltersOpen && (
                 <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in slide-in-from-bottom-10">
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-200">
                         <h2 className="font-bold text-gray-800 text-lg">Filtrar resultados</h2>
-                        <button 
+                        <button
                             onClick={() => setIsMobileFiltersOpen(false)}
                             className="p-2 text-gray-500 hover:text-gray-800"
                         >
                             <X className="w-6 h-6" />
                         </button>
                     </div>
-                    
+
                     {/* Body (Scrollable) */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                        <FiltersPanel 
-                            filters={staticFilters} 
-                            onChange={handleFilterChange} 
+                        <FiltersPanel
+                            filters={staticFilters}
+                            onChange={handleFilterChange}
                             layout="vertical"
                         />
                     </div>
-                    
+
                     {/* Footer (Sticky) */}
                     <div className="p-4 border-t border-gray-200 bg-white flex gap-3 sticky bottom-0">
                         <button
@@ -574,26 +620,18 @@ export default function CategoryPage() {
 
             <Header />
 
-            {/* Breadcrumb (Hidden on mobile to save space or simplified?) */}
-            <div className="bg-white pt-3 pb-1 hidden md:block">
-                <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-1 text-xs text-gray-500 underline">
-                        <Link to="/" className="hover:text-viva-green">Classificados</Link>
-                        <span>&gt;</span>
-                        <span className="text-gray-800 font-normal">Brasil {categoryTitle}</span>
-                    </div>
-                </div>
-            </div>
+            {/* Breadcrumb */}
+            <VisibleBreadcrumb items={breadcrumbItems} />
 
             <main className="flex-1">
                 <div className="container mx-auto px-4 py-4">
-                    
+
                     {/* FILTER BOX (Responsive) */}
                     <div className="bg-[#eef1f3] p-4 rounded-sm border border-gray-200 mb-6">
-                        
+
                         {/* DESKTOP LAYOUT (Hidden on mobile) */}
                         <div className="hidden md:block">
-                             {/* Top Search Row */}
+                            {/* Top Search Row */}
                             <div className="flex flex-col md:flex-row gap-2 mb-4">
                                 <div ref={categoryRef} className="relative flex-1">
                                     <button
@@ -643,7 +681,7 @@ export default function CategoryPage() {
                                         <option key={st} value={st}>{st}</option>
                                     ))}
                                 </select>
-                                <button 
+                                <button
                                     onClick={handleSearchSubmit}
                                     className="bg-viva-green hover:bg-red-700 text-white font-bold px-8 py-2 rounded text-sm transition-colors uppercase"
                                 >
@@ -660,14 +698,14 @@ export default function CategoryPage() {
                         <div className="md:hidden space-y-3">
                             {/* Row 1: Search Input */}
                             <div className="flex gap-2">
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     placeholder="e.g. 'casal', 'ativo'"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-viva-green"
                                 />
-                                <button 
+                                <button
                                     onClick={handleSearchSubmit}
                                     className="bg-viva-green text-white p-2 rounded w-10 flex items-center justify-center"
                                 >
@@ -687,7 +725,7 @@ export default function CategoryPage() {
                                         <span className="truncate">{categoryTitle}</span>
                                         <ChevronDown className="w-4 h-4" />
                                     </button>
-                                     {showCategoryDropdown && (
+                                    {showCategoryDropdown && (
                                         <div className="absolute z-50 top-full left-0 right-0 bg-white border border-gray-200 shadow-xl max-h-60 overflow-y-auto mt-1">
                                             {flattenedCategories.map((cat, index) => (
                                                 <button
@@ -704,10 +742,10 @@ export default function CategoryPage() {
                                         </div>
                                     )}
                                 </div>
-                                
+
                                 {/* Location Input (Mocked as text for now to match UI, or use select) */}
                                 <div className="flex-1">
-                                     <select
+                                    <select
                                         value={selectedState}
                                         onChange={(e) => setSelectedState(e.target.value)}
                                         className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
@@ -722,21 +760,21 @@ export default function CategoryPage() {
 
                             {/* Row 3: Action Buttons */}
                             <div className="flex gap-2 pt-1">
-                                <button 
+                                <button
                                     onClick={() => setIsMobileFiltersOpen(true)}
                                     className="flex-1 bg-white border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-gray-700 font-bold text-sm shadow-sm hover:bg-gray-50"
                                 >
                                     <Filter className="w-4 h-4 text-[#ff8000]" />
                                     Filtros
                                 </button>
-                                <button 
+                                <button
                                     onClick={togglePhotosFilter}
                                     className={`flex-1 bg-white border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-gray-700 font-bold text-sm shadow-sm hover:bg-gray-50 ${hasPhotosParam === 'true' ? 'ring-2 ring-[#ff8000]' : ''}`}
                                 >
                                     <LayoutGrid className="w-4 h-4 text-[#ff8000]" />
                                     Fotos
                                 </button>
-                                <button 
+                                <button
                                     className="flex-1 bg-white border border-gray-300 rounded py-2 flex items-center justify-center gap-2 text-gray-700 font-bold text-sm shadow-sm hover:bg-gray-50"
                                 >
                                     <Bell className="w-4 h-4 text-[#ff8000]" />
@@ -754,17 +792,17 @@ export default function CategoryPage() {
                                 <span className="font-bold">{allFilteredAds.length} resultados</span> {categoryTitle} em {stateQuery || "Brasil"}
                                 <div className="h-[3px] bg-viva-green w-full mt-1"></div>
                             </h1>
-                            
+
                             {!isAdultCategory && (
                                 <div className="flex gap-4 text-sm text-gray-500 font-medium">
-                                    <button 
+                                    <button
                                         onClick={() => toggleAdvertiserType('private')}
                                         className={`transition-colors hover:text-gray-900 ${advertiserType === 'private' ? 'text-viva-green font-bold underline' : ''}`}
                                     >
                                         {privateAdvertiserLabel}
                                     </button>
                                     {professionalAdvertiserLabel && (
-                                        <button 
+                                        <button
                                             onClick={() => toggleAdvertiserType('professional')}
                                             className={`transition-colors hover:text-gray-900 ${advertiserType === 'professional' ? 'text-viva-green font-bold underline' : ''}`}
                                         >
@@ -776,24 +814,24 @@ export default function CategoryPage() {
                         </div>
 
                         <div className="flex items-center gap-3 mt-4 md:mt-0">
-                             <div className="flex border border-gray-300 rounded overflow-hidden">
-                                <button 
+                            <div className="flex border border-gray-300 rounded overflow-hidden">
+                                <button
                                     onClick={() => setViewMode('list')}
                                     className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold border-r border-gray-300 ${viewMode === 'list' ? 'bg-white text-gray-600' : 'bg-gray-50 text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <List className={`w-4 h-4 ${viewMode === 'list' ? 'text-viva-green' : ''}`} />
                                     Classificados
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => setViewMode('grid')}
                                     className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold ${viewMode === 'grid' ? 'bg-white text-gray-600' : 'bg-gray-50 text-gray-400 hover:text-gray-600'}`}
                                 >
                                     <LayoutGrid className={`w-4 h-4 ${viewMode === 'grid' ? 'text-viva-green' : ''}`} />
                                     Fotos
                                 </button>
-                             </div>
-                             
-                             <div className="flex items-center gap-2">
+                            </div>
+
+                            <div className="flex items-center gap-2">
                                 <select
                                     value={sortParam}
                                     onChange={(e) => {
@@ -807,17 +845,17 @@ export default function CategoryPage() {
                                     <option value="price_asc">Preço: Menor para Maior</option>
                                     <option value="price_desc">Preço: Maior para Menor</option>
                                 </select>
-                             </div>
+                            </div>
                         </div>
                     </div>
 
                     {/* VIP Carousel */}
                     {vipAds.length > 0 && (
                         <div className="mb-6">
-                            <VIPCarousel 
-                                ads={vipAds} 
-                                favorites={favorites} 
-                                onToggleFavorite={handleToggleFavorite} 
+                            <VIPCarousel
+                                ads={vipAds}
+                                favorites={favorites}
+                                onToggleFavorite={handleToggleFavorite}
                             />
                         </div>
                     )}
@@ -829,7 +867,7 @@ export default function CategoryPage() {
                         ) : regularAds.length === 0 && vipAds.length === 0 ? (
                             <div className="col-span-full text-center py-12 bg-white rounded shadow-sm border border-gray-200 flex flex-col items-center justify-center gap-4">
                                 <p className="text-gray-500 text-lg">Nenhum anúncio encontrado nesta categoria.</p>
-                                <button 
+                                <button
                                     onClick={clearFilters}
                                     className="px-6 py-2 bg-viva-green hover:bg-red-700 text-white font-bold rounded shadow-sm transition-colors uppercase text-sm"
                                 >
@@ -838,179 +876,179 @@ export default function CategoryPage() {
                             </div>
                         ) : (
                             regularAds.map((ad: any) => {
-                                    // Determine styling based on promotion plan (mocked or from attributes)
-                                    // In a real app, this would check active subscriptions/promotions
-                                    const promotions = ad.attributes?.promotions || [];
-                                    const planTier = (ad.attributes?.plan_tier ? String(ad.attributes.plan_tier).toLowerCase() : "");
-                                    const planExpiresAt = ad.attributes?.plan_expires_at ? Date.parse(String(ad.attributes.plan_expires_at)) : NaN;
-                                    const isPlanActive = Number.isFinite(planExpiresAt) ? planExpiresAt > Date.now() : false;
-                                    
-                                    // VIPs are handled in Carousel, so here we only check Premium and Highlight
-                                    const isVip = (planTier === "vip" && isPlanActive) || promotions.includes('vip');
-                                    const isPremium = (planTier === "premium" && isPlanActive) || promotions.includes('premium');
-                                    const isHighlight = promotions.includes('highlight'); // Green
-                                    const isNew = promotions.includes('new_label');
-                                    const isFavorited = favorites.includes(ad.id);
+                                // Determine styling based on promotion plan (mocked or from attributes)
+                                // In a real app, this would check active subscriptions/promotions
+                                const promotions = ad.attributes?.promotions || [];
+                                const planTier = (ad.attributes?.plan_tier ? String(ad.attributes.plan_tier).toLowerCase() : "");
+                                const planExpiresAt = ad.attributes?.plan_expires_at ? Date.parse(String(ad.attributes.plan_expires_at)) : NaN;
+                                const isPlanActive = Number.isFinite(planExpiresAt) ? planExpiresAt > Date.now() : false;
 
-                                    // Base styles
-                                    let containerClasses = "";
-                                    let titleClasses = "";
-                                    const customStyle: React.CSSProperties = {};
-                                    
+                                // VIPs are handled in Carousel, so here we only check Premium and Highlight
+                                const isVip = (planTier === "vip" && isPlanActive) || promotions.includes('vip');
+                                const isPremium = (planTier === "premium" && isPlanActive) || promotions.includes('premium');
+                                const isHighlight = promotions.includes('highlight'); // Green
+                                const isNew = promotions.includes('new_label');
+                                const isFavorited = favorites.includes(ad.id);
+
+                                // Base styles
+                                let containerClasses = "";
+                                let titleClasses = "";
+                                const customStyle: React.CSSProperties = {};
+
+                                if (viewMode === 'list') {
+                                    // LIST VIEW STYLES - Mobile: Image left, content right
+                                    containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300";
+                                    titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-[#004e8a] leading-tight";
+                                } else {
+                                    // GRID VIEW STYLES
+                                    containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300 h-full";
+                                    titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-[#004e8a] line-clamp-2";
+                                }
+
+                                if (isPremium) {
+                                    // PREMIUM
+                                    customStyle.borderColor = "#f97316";
+                                } else if (isHighlight) {
+                                    // HIGHLIGHT
+                                    customStyle.backgroundColor = "#FFF1F2";
+                                    customStyle.borderColor = "#dc2626";
                                     if (viewMode === 'list') {
-                                        // LIST VIEW STYLES - Mobile: Image left, content right
-                                        containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300";
-                                        titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-[#004e8a] leading-tight";
+                                        titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-red-700 leading-tight";
                                     } else {
-                                        // GRID VIEW STYLES
-                                        containerClasses = "border p-3 flex flex-col gap-3 transition-all group cursor-pointer relative shadow-sm hover:shadow-md rounded-sm bg-white border-gray-200 hover:border-gray-300 h-full";
-                                        titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-[#004e8a] line-clamp-2";
+                                        titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-red-700 line-clamp-2";
                                     }
+                                }
 
-                                    if (isPremium) {
-                                        // PREMIUM
-                                        customStyle.borderColor = "#f97316";
-                                    } else if (isHighlight) {
-                                        // HIGHLIGHT
-                                        customStyle.backgroundColor = "#FFF1F2";
-                                        customStyle.borderColor = "#dc2626";
-                                        if (viewMode === 'list') {
-                                            titleClasses = "font-bold text-base group-hover:underline mb-1 uppercase text-red-700 leading-tight";
-                                        } else {
-                                            titleClasses = "font-bold text-sm group-hover:underline mb-1 uppercase text-red-700 line-clamp-2";
-                                        }
-                                    }
+                                return (
+                                    <article
+                                        key={ad.id}
+                                        className={containerClasses}
+                                        style={customStyle}
+                                    >
+                                        {isNew && (
+                                            <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 z-10">
+                                                NOVO
+                                            </div>
+                                        )}
 
-                                    return (
-                                        <article
-                                            key={ad.id}
-                                            className={containerClasses}
-                                            style={customStyle}
-                                        >
-                                            {isNew && (
-                                                <div className="absolute top-0 left-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 z-10">
-                                                    NOVO
-                                                </div>
-                                            )}
+                                        {isPremium && (
+                                            <div className="absolute -top-3 -right-1 bg-white text-orange-500 text-[10px] font-bold px-2 py-0.5 border border-orange-500 rounded-sm z-20 shadow-sm uppercase">
+                                                PREMIUM
+                                            </div>
+                                        )}
 
-                                            {isPremium && (
-                                                <div className="absolute -top-3 -right-1 bg-white text-orange-500 text-[10px] font-bold px-2 py-0.5 border border-orange-500 rounded-sm z-20 shadow-sm uppercase">
-                                                    PREMIUM
-                                                </div>
-                                            )}
-                                            
-                                            {viewMode === 'list' ? (
-                                                // LIST VIEW LAYOUT
-                                                <>
-                                                    {/* Top Section: Image + Info */}
-                                                    <div className="flex gap-3">
-                                                        {/* Image */}
-                                                        <div className="w-[120px] h-[120px] md:w-[160px] md:h-[120px] flex-shrink-0 relative bg-gray-200 overflow-hidden rounded-sm border border-gray-200">
-                                                            <img
-                                                                src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
-                                                                alt={ad.title}
-                                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                                                            />
-                                                            <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
-                                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
-                                                                <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Right Info */}
-                                                        <div className="flex-1 min-w-0 flex flex-col">
-                                                            <h3 className={titleClasses}>
-                                                                <Link to={`/anuncio/${ad.id}`} className="block truncate">{ad.title}</Link>
-                                                            </h3>
-                                                            
-                                                            <div className="text-xs text-gray-500 mb-1">
-                                                                {ad.attributes?.age ? `${ad.attributes.age} anos • ` : ''} {ad.city} {ad.state}
-                                                            </div>
-                                                            
-                                                            <div className="flex items-center gap-1 text-gray-500 text-xs mb-2">
-                                                                <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/></svg>
-                                                                <span className="truncate">{ad.city}</span>
-                                                            </div>
-
-                                                            {ad.price && (
-                                                                <div className="mt-auto">
-                                                                     <span className="inline-block border border-gray-300 rounded px-2 py-0.5 text-xs font-bold text-gray-700 bg-white shadow-sm">
-                                                                        {isAdultCategory ? "Cachê" : "Valor"}: R${ad.price.toLocaleString('pt-BR')}
-                                                                     </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Description (Full Width Below) */}
-                                                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed border-t border-gray-100 pt-2 mt-1">
-                                                        {ad.description}
-                                                    </p>
-                                                    
-                                                    {/* Bottom Actions (Heart) */}
-                                                    <div className="absolute bottom-3 right-3">
-                                                        <button 
-                                                            onClick={(e) => handleToggleFavorite(e, ad.id)}
-                                                            className={`transition-colors p-1.5 rounded-full border bg-white hover:bg-gray-50 shadow-sm ${isFavorited ? 'border-red-200 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500'}`}
-                                                        >
-                                                            <svg className="w-5 h-5" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                // GRID VIEW LAYOUT
-                                                <div className="flex-1 min-w-0 flex flex-col h-full">
+                                        {viewMode === 'list' ? (
+                                            // LIST VIEW LAYOUT
+                                            <>
+                                                {/* Top Section: Image + Info */}
+                                                <div className="flex gap-3">
                                                     {/* Image */}
-                                                    <div className="w-full aspect-[4/3] bg-gray-200 overflow-hidden rounded-sm border border-gray-200 mb-2 relative">
+                                                    <div className="w-[120px] h-[120px] md:w-[160px] md:h-[120px] flex-shrink-0 relative bg-gray-200 overflow-hidden rounded-sm border border-gray-200">
                                                         <img
                                                             src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
                                                             alt={ad.title}
                                                             className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                                         />
                                                         <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
-                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/></svg>
+                                                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
                                                             <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
                                                         </div>
                                                     </div>
 
-                                                    <h3 className={titleClasses}>
-                                                        <Link to={`/anuncio/${ad.id}`} className="block">{ad.title}</Link>
-                                                    </h3>
-                                                    
-                                                    <div className="text-xs text-gray-500 mt-1 mb-2">
-                                                        {ad.city}
-                                                    </div>
-                                                    
-                                                    {ad.price && (
-                                                        <div className="mt-auto pt-2 border-t border-gray-100">
-                                                            <div className="font-bold text-lg text-viva-green">
-                                                                R${ad.price.toLocaleString('pt-BR')}
-                                                            </div>
+                                                    {/* Right Info */}
+                                                    <div className="flex-1 min-w-0 flex flex-col">
+                                                        <h3 className={titleClasses}>
+                                                            <Link to={`/anuncio/${ad.id}`} className="block truncate">{ad.title}</Link>
+                                                        </h3>
+
+                                                        <div className="text-xs text-gray-500 mb-1">
+                                                            {ad.attributes?.age ? `${ad.attributes.age} anos • ` : ''} {ad.city} {ad.state}
                                                         </div>
-                                                    )}
-                                                    
-                                                    {/* Heart Action */}
-                                                    <div className="absolute bottom-3 right-3">
-                                                        <button 
-                                                            onClick={(e) => handleToggleFavorite(e, ad.id)}
-                                                            className={`transition-colors p-1.5 rounded-full border bg-white hover:bg-gray-50 shadow-sm ${isFavorited ? 'border-red-200 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500'}`}
-                                                        >
-                                                            <svg className="w-4 h-4" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                                            </svg>
-                                                        </button>
+
+                                                        <div className="flex items-center gap-1 text-gray-500 text-xs mb-2">
+                                                            <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                                                            <span className="truncate">{ad.city}</span>
+                                                        </div>
+
+                                                        {ad.price && (
+                                                            <div className="mt-auto">
+                                                                <span className="inline-block border border-gray-300 rounded px-2 py-0.5 text-xs font-bold text-gray-700 bg-white shadow-sm">
+                                                                    {isAdultCategory ? "Cachê" : "Valor"}: R${ad.price.toLocaleString('pt-BR')}
+                                                                </span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
-                                            )}
-                                        </article>
-                                    );
-                                })
-                            
+
+                                                {/* Description (Full Width Below) */}
+                                                <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed border-t border-gray-100 pt-2 mt-1">
+                                                    {ad.description}
+                                                </p>
+
+                                                {/* Bottom Actions (Heart) */}
+                                                <div className="absolute bottom-3 right-3">
+                                                    <button
+                                                        onClick={(e) => handleToggleFavorite(e, ad.id)}
+                                                        className={`transition-colors p-1.5 rounded-full border bg-white hover:bg-gray-50 shadow-sm ${isFavorited ? 'border-red-200 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500'}`}
+                                                    >
+                                                        <svg className="w-5 h-5" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            // GRID VIEW LAYOUT
+                                            <div className="flex-1 min-w-0 flex flex-col h-full">
+                                                {/* Image */}
+                                                <div className="w-full aspect-[4/3] bg-gray-200 overflow-hidden rounded-sm border border-gray-200 mb-2 relative">
+                                                    <img
+                                                        src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
+                                                        alt={ad.title}
+                                                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                                    />
+                                                    <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
+                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+                                                        <span className="text-blue-300 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{ad.images?.length || 0}</span>
+                                                    </div>
+                                                </div>
+
+                                                <h3 className={titleClasses}>
+                                                    <Link to={`/anuncio/${ad.id}`} className="block">{ad.title}</Link>
+                                                </h3>
+
+                                                <div className="text-xs text-gray-500 mt-1 mb-2">
+                                                    {ad.city}
+                                                </div>
+
+                                                {ad.price && (
+                                                    <div className="mt-auto pt-2 border-t border-gray-100">
+                                                        <div className="font-bold text-lg text-viva-green">
+                                                            R${ad.price.toLocaleString('pt-BR')}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Heart Action */}
+                                                <div className="absolute bottom-3 right-3">
+                                                    <button
+                                                        onClick={(e) => handleToggleFavorite(e, ad.id)}
+                                                        className={`transition-colors p-1.5 rounded-full border bg-white hover:bg-gray-50 shadow-sm ${isFavorited ? 'border-red-200 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500'}`}
+                                                    >
+                                                        <svg className="w-4 h-4" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </article>
+                                );
+                            })
+
                         )}
                     </div>
-                    
+
                     {/* Pagination */}
                     <div className="flex gap-1 justify-center mt-8">
                         <button className="bg-viva-green text-white font-bold w-8 h-8 flex items-center justify-center rounded-sm text-sm">1</button>
@@ -1088,6 +1126,14 @@ export default function CategoryPage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Category Intro Text (SEO) - Moved to bottom for better UX */}
+                    <div className="bg-gray-50 border border-gray-200 rounded-sm p-4 mt-8">
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                            {introText}
+                        </p>
+                    </div>
+
                 </div>
             </main>
 
