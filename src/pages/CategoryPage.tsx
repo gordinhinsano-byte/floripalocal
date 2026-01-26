@@ -515,7 +515,7 @@ export default function CategoryPage() {
     const categoryTitle = category?.name || cleanSlug.replace(/-/g, ' ').toUpperCase();
 
     // SEO: Generate unique title and intro text
-    const seoTitle = `${cleanTitle(categoryTitle, 50)} | FloripaLocal`;
+    const seoTitle = `${cleanTitle(categoryTitle, 50)} | Floripa Local`;
     const introText = getCategoryIntroText(cleanSlug, categoryTitle);
 
     // SEO: Breadcrumb data
@@ -525,8 +525,8 @@ export default function CategoryPage() {
     ];
 
     const breadcrumbSchema = generateBreadcrumbSchema([
-        { name: 'Classificados', url: 'https://www.floripalocal.com/' },
-        { name: categoryTitle, url: `https://www.floripalocal.com/c/${cleanSlug}` }
+        { name: 'Classificados', url: 'https://www.Floripa Local.com/' },
+        { name: categoryTitle, url: `https://www.Floripa Local.com/c/${cleanSlug}` }
     ]);
 
     const itemListSchema = generateItemListSchema(categoryTitle, regularAds, cleanSlug);
@@ -548,7 +548,7 @@ export default function CategoryPage() {
         <div className="min-h-screen flex flex-col bg-white">
             <Helmet>
                 {/* SEO: Canonical URL */}
-                <link rel="canonical" href={`https://www.floripalocal.com/c/${cleanSlug}`} />
+                <link rel="canonical" href={`https://www.Floripa Local.com/c/${cleanSlug}`} />
 
                 {/* SEO: Robots */}
                 <meta name="robots" content="index,follow" />

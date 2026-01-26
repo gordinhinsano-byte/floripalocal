@@ -59,7 +59,7 @@ export default function LoginPage() {
                 <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-sm border border-gray-200">
                     <div className="mb-6">
                         <h2 className="text-xl font-bold text-gray-900">
-                            Acessar FloripaLocal
+                            Acessar Floripa Local
                         </h2>
                     </div>
 

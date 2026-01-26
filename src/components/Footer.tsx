@@ -169,7 +169,7 @@ export const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
             <div className="flex items-center">
               <Link to="/">
-                <img src="/logoflb.svg" alt="FloripaLocal" className="h-12 w-auto object-contain" />
+                <img src="/logoflb.svg" alt="Floripa Local" className="h-12 w-auto object-contain" />
               </Link>
             </div>
             <div className="flex flex-wrap justify-center gap-4 text-[11px] text-gray-400">
@@ -182,7 +182,7 @@ export const Footer = () => {
               <Link to="/ajuda" className="hover:text-white transition-colors">Ajuda</Link>
             </div>
             <p className="text-[11px] text-gray-500">
-              © 2026 FloripaLocal
+              © 2026 Floripa Local
             </p>
           </div>
         </div>

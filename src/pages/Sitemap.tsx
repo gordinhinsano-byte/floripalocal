@@ -95,8 +95,8 @@ const Sitemap = () => {
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <Helmet>
-                <title>Mapa do Site | FloripaLocal</title>
-                <meta name="description" content="Mapa do site do FloripaLocal. Encontre todas as categorias e páginas do nosso classificados." />
+                <title>Mapa do Site | Floripa Local</title>
+                <meta name="description" content="Mapa do site do Floripa Local. Encontre todas as categorias e páginas do nosso classificados." />
             </Helmet>
 
             <Header />

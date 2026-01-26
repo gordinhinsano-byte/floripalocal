@@ -217,7 +217,7 @@ export default function RegisterPage() {
                             <div className="space-y-6">
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900 mb-2">
-                                        Vamos te ajudar a se cadastrar. Como você gostaria de usar o FloripaLocal?
+                                        Vamos te ajudar a se cadastrar. Como você gostaria de usar o Floripa Local?
                                     </h2>
                                     <p className="text-sm text-gray-600">
                                         Por favor, selecione uma ou ambas as opções abaixo que melhor o(a) descrevem.
@@ -313,7 +313,7 @@ export default function RegisterPage() {
                                             onChange={(e) => updateFormData('agreedToTerms', e.target.checked)}
                                         />
                                         <span className="text-sm text-gray-600">
-                                            Eu concordo com os <a href="#" className="text-blue-500 hover:underline">Termos e Condições</a> do FloripaLocal e aceito a <a href="#" className="text-blue-500 hover:underline">Política de Privacidade</a>
+                                            Eu concordo com os <a href="#" className="text-blue-500 hover:underline">Termos e Condições</a> do Floripa Local e aceito a <a href="#" className="text-blue-500 hover:underline">Política de Privacidade</a>
                                         </span>
                                     </label>
                                     <label className="flex items-start gap-2">
@@ -324,7 +324,7 @@ export default function RegisterPage() {
                                             onChange={(e) => updateFormData('agreedToNews', e.target.checked)}
                                         />
                                         <span className="text-sm text-gray-600">
-                                            Aceito receber informações e novidades por email do FloripaLocal
+                                            Aceito receber informações e novidades por email do Floripa Local
                                         </span>
                                     </label>
                                 </div>

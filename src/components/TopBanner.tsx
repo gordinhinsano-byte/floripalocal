@@ -12,7 +12,7 @@ export const TopBanner = () => {
         <div className="flex items-center gap-3 text-sm">
           <Calendar className="w-4 h-4 text-amber-600" />
           <span className="text-amber-800">
-            O FloripaLocal encerra suas atividades em 29 de janeiro de 2026.{" "}
+            O Floripa Local encerra suas atividades em 29 de janeiro de 2026.{" "}
             <a href="#" className="text-viva-green hover:underline font-medium">
               Saiba mais aqui.
             </a>

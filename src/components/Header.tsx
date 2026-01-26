@@ -36,7 +36,7 @@ export const Header = ({ transparent = false }: HeaderProps) => {
             {/* Using a standard height for the logo */}
             <img
               src={logoSrc}
-              alt="FloripaLocal"
+              alt="Floripa Local"
               className="h-16 sm:h-20 md:h-24 w-auto max-h-none object-contain block"
             />
           </Link>

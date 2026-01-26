@@ -31,7 +31,7 @@ export const AdultContentWarning = ({ onAccept, onDecline }: AdultContentWarning
                 
                 <div className="p-6 md:p-8 flex-1">
                     <div className="flex justify-center mb-8">
-                        <img src="/logofl.svg" alt="FloripaLocal" className="h-12" />
+                        <img src="/logofl.svg" alt="Floripa Local" className="h-12" />
                     </div>
 
                     {/* Warning Box */}
@@ -43,7 +43,7 @@ export const AdultContentWarning = ({ onAccept, onDecline }: AdultContentWarning
                             Conteúdo adulto
                         </h2>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                            O FloripaLocal é uma plataforma onde se pode encontrar anúncios de profissionais do sexo independentes oferecendo os seus serviços de companhia. O FloripaLocal não é uma agência de acompanhantes e não participa de nenhuma etapa das negociações entre anunciantes e interessados.
+                            O Floripa Local é uma plataforma onde se pode encontrar anúncios de profissionais do sexo independentes oferecendo os seus serviços de companhia. O Floripa Local não é uma agência de acompanhantes e não participa de nenhuma etapa das negociações entre anunciantes e interessados.
                         </p>
                     </div>
 

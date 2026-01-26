@@ -151,7 +151,7 @@ export default function AdDetail() {
     const normalizedCity = normalizeCity(ad);
     const normalizedRegion = normalizeRegion(ad);
     const serviceLabel = extractFirstService(ad);
-    const seoTitle = `${cleanTitle(ad.title, 55)} – ${normalizedCity}, ${normalizedRegion} | FloripaLocal`;
+    const seoTitle = `${cleanTitle(ad.title, 55)} – ${normalizedCity}, ${normalizedRegion} | Floripa Local`;
     const seoH1 = `${ad.title} — ${serviceLabel} em ${normalizedCity} (${normalizedRegion})`;
     const shortDescription = generateShortDescription(ad.description);
     const priceRange = calculatePriceRange(ad);
@@ -167,8 +167,8 @@ export default function AdDetail() {
         breadcrumbItems.map((item, index) => ({
             name: item.label,
             url: index === breadcrumbItems.length - 1
-                ? `https://www.floripalocal.com/anuncio/${id}`
-                : `https://www.floripalocal.com${item.url}`
+                ? `https://www.Floripa Local.com/anuncio/${id}`
+                : `https://www.Floripa Local.com${item.url}`
         }))
     );
 
@@ -203,7 +203,7 @@ export default function AdDetail() {
     };
 
     const whatsappDigits = normalizeWhatsappDigits(rawContactPhone);
-    const whatsappText = encodeURIComponent(`Olá! Vi seu anúncio "${ad.title}" no FloripaLocal. Ainda está disponível?`);
+    const whatsappText = encodeURIComponent(`Olá! Vi seu anúncio "${ad.title}" no Floripa Local. Ainda está disponível?`);
     const whatsappHref = whatsappDigits ? `https://wa.me/${whatsappDigits}?text=${whatsappText}` : "";
 
     const isEscortAd = (() => {
@@ -279,7 +279,7 @@ export default function AdDetail() {
         <div className="min-h-screen bg-[#f6f8fb] flex flex-col font-sans text-gray-600">
             <Helmet>
                 {/* SEO: Canonical URL */}
-                <link rel="canonical" href={`https://www.floripalocal.com/anuncio/${id}`} />
+                <link rel="canonical" href={`https://www.Floripa Local.com/anuncio/${id}`} />
 
                 {/* SEO: Robots */}
                 <meta name="robots" content="index,follow" />
@@ -659,7 +659,7 @@ export default function AdDetail() {
                             {/* Contact Box */}
                             <div className="bg-white border border-gray-300 p-4 rounded-sm shadow-sm">
                                 <h3 className="font-bold text-[#333] text-center mb-1 text-[15px]">Contatar anunciante</h3>
-                                <p className="text-[11px] text-gray-500 text-center mb-4">Não esqueça de falar que me viu na FloripaLocal!</p>
+                                <p className="text-[11px] text-gray-500 text-center mb-4">Não esqueça de falar que me viu na Floripa Local!</p>
 
                                 <div className="space-y-3">
                                     {/* Chat Form directly here */}
@@ -793,7 +793,7 @@ export default function AdDetail() {
 
                                 <div className="flex items-start gap-2 mb-6">
                                     <input type="checkbox" id="tips" className="mt-1" />
-                                    <label htmlFor="tips" className="text-xs text-gray-500">Receba dicas do FloripaLocal via email.</label>
+                                    <label htmlFor="tips" className="text-xs text-gray-500">Receba dicas do Floripa Local via email.</label>
                                 </div>
 
                                 <button
@@ -823,13 +823,13 @@ export default function AdDetail() {
                                 </div>
 
                                 <p className="text-xs text-gray-500 mb-6 leading-relaxed">
-                                    Ao contactar este anunciante você está concordando com os <a href="#" className="text-blue-500 hover:underline">Termos e Condições</a> do FloripaLocal.
+                                    Ao contactar este anunciante você está concordando com os <a href="#" className="text-blue-500 hover:underline">Termos e Condições</a> do Floripa Local.
                                 </p>
 
                                 <button
                                     onClick={() => {
                                         const email = "contato@anunciante.com";
-                                        window.location.href = `mailto:${email}?subject=Interesse no anúncio: ${ad.title}&body=Olá, vi seu anúncio no FloripaLocal...`;
+                                        window.location.href = `mailto:${email}?subject=Interesse no anúncio: ${ad.title}&body=Olá, vi seu anúncio no Floripa Local...`;
                                         setShowEmailModal(false);
                                     }}
                                     className="w-full bg-viva-green hover:bg-red-700 text-white font-bold py-3 rounded text-sm transition-colors mb-6 flex items-center justify-center gap-2"
@@ -844,7 +844,7 @@ export default function AdDetail() {
                                         <span>Economize tempo na próxima vez</span>
                                     </div>
                                     <p className="text-xs text-gray-500 mb-4">
-                                        Tenha acesso ao email dos anunciantes acessando sua conta no FloripaLocal.
+                                        Tenha acesso ao email dos anunciantes acessando sua conta no Floripa Local.
                                     </p>
                                     <Link
                                         to="/register"

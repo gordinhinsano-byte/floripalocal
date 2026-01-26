@@ -11,7 +11,7 @@ import { Category } from "@/types";
 import { supabase } from "@/lib/supabaseClient";
 import { ImportVivaLocalAd } from "@/components/ImportVivaLocalAd";
 
-// Official FloripaLocal Icons from Source
+// Official Floripa Local Icons from Source
 const Icons = {
     Camera: () => (
         <svg viewBox="0 0 20 16" className="w-8 h-8 text-gray-400">
