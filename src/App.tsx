@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { CanonicalTag } from "./components/CanonicalTag";
 import Index from "./pages/Index";
 import AluguelCasas from "./pages/AluguelCasas";
 import AdDetail from "./pages/AdDetail";
@@ -64,6 +65,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <CanonicalTag />
           <AuthHashRedirector />
           <Routes>
             <Route path="/" element={<Index />} />
