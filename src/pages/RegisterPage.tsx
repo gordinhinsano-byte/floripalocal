@@ -287,15 +287,10 @@ export default function RegisterPage() {
                                         type="email"
                                         autoComplete="email"
                                         value={formData.email}
-                                        onChange={(e) => {
-                                            updateFormData('email', e.target.value);
-                                            if (fieldErrors.email) {
-                                                setFieldErrors(prev => ({ ...prev, email: '' }));
-                                            }
-                                        }}
+                                        onChange={(e) => updateFormData('email', e.target.value)}
                                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 ${fieldErrors.email
-                                                ? 'border-red-500 focus:ring-red-500'
-                                                : 'border-gray-300 focus:ring-viva-green'
+                                            ? 'border-red-500 focus:ring-red-500'
+                                            : 'border-gray-300 focus:ring-viva-green'
                                             }`}
                                         placeholder="seu@email.com"
                                     />
@@ -390,15 +385,10 @@ export default function RegisterPage() {
                                         <input
                                             type="text"
                                             value={formData.firstName}
-                                            onChange={(e) => {
-                                                updateFormData('firstName', e.target.value);
-                                                if (fieldErrors.firstName) {
-                                                    setFieldErrors(prev => ({ ...prev, firstName: '' }));
-                                                }
-                                            }}
+                                            onChange={(e) => updateFormData('firstName', e.target.value)}
                                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 ${fieldErrors.firstName
-                                                    ? 'border-red-500 focus:ring-red-500'
-                                                    : 'border-gray-300 focus:ring-viva-green'
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-gray-300 focus:ring-viva-green'
                                                 }`}
                                         />
                                         {fieldErrors.firstName && (
@@ -412,15 +402,10 @@ export default function RegisterPage() {
                                         <input
                                             type="text"
                                             value={formData.lastName}
-                                            onChange={(e) => {
-                                                updateFormData('lastName', e.target.value);
-                                                if (fieldErrors.lastName) {
-                                                    setFieldErrors(prev => ({ ...prev, lastName: '' }));
-                                                }
-                                            }}
+                                            onChange={(e) => updateFormData('lastName', e.target.value)}
                                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 ${fieldErrors.lastName
-                                                    ? 'border-red-500 focus:ring-red-500'
-                                                    : 'border-gray-300 focus:ring-viva-green'
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-gray-300 focus:ring-viva-green'
                                                 }`}
                                         />
                                         {fieldErrors.lastName && (
@@ -438,15 +423,10 @@ export default function RegisterPage() {
                                         autoComplete="tel"
                                         placeholder="(11) 99999-9999"
                                         value={formData.phone}
-                                        onChange={(e) => {
-                                            updateFormData('phone', e.target.value);
-                                            if (fieldErrors.phone) {
-                                                setFieldErrors(prev => ({ ...prev, phone: '' }));
-                                            }
-                                        }}
+                                        onChange={(e) => updateFormData('phone', e.target.value)}
                                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 ${fieldErrors.phone
-                                                ? 'border-red-500 focus:ring-red-500'
-                                                : 'border-gray-300 focus:ring-viva-green'
+                                            ? 'border-red-500 focus:ring-red-500'
+                                            : 'border-gray-300 focus:ring-viva-green'
                                             }`}
                                     />
                                     {fieldErrors.phone && (
@@ -464,15 +444,10 @@ export default function RegisterPage() {
                                     <input
                                         type="text"
                                         value={formData.username}
-                                        onChange={(e) => {
-                                            updateFormData('username', e.target.value);
-                                            if (fieldErrors.username) {
-                                                setFieldErrors(prev => ({ ...prev, username: '' }));
-                                            }
-                                        }}
+                                        onChange={(e) => updateFormData('username', e.target.value)}
                                         className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 ${fieldErrors.username
-                                                ? 'border-red-500 focus:ring-red-500'
-                                                : 'border-gray-300 focus:ring-viva-green'
+                                            ? 'border-red-500 focus:ring-red-500'
+                                            : 'border-gray-300 focus:ring-viva-green'
                                             }`}
                                     />
                                     {fieldErrors.username && (
@@ -491,15 +466,10 @@ export default function RegisterPage() {
                                         <input
                                             type={showPassword ? "text" : "password"}
                                             value={formData.password}
-                                            onChange={(e) => {
-                                                updateFormData('password', e.target.value);
-                                                if (fieldErrors.password) {
-                                                    setFieldErrors(prev => ({ ...prev, password: '' }));
-                                                }
-                                            }}
+                                            onChange={(e) => updateFormData('password', e.target.value)}
                                             className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-1 pr-10 ${fieldErrors.password
-                                                    ? 'border-red-500 focus:ring-red-500'
-                                                    : 'border-gray-300 focus:ring-viva-green'
+                                                ? 'border-red-500 focus:ring-red-500'
+                                                : 'border-gray-300 focus:ring-viva-green'
                                                 }`}
                                         />
                                         <button
