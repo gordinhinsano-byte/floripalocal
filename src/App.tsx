@@ -25,6 +25,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import Sitemap from "./pages/Sitemap";
 import { supabase } from "@/lib/supabaseClient";
 import { useEffect } from "react";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
@@ -70,7 +71,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/alugar-casa-apartamento" element={<AluguelCasas />} />
-            <Route path="/c/:categorySlug" element={<CategoryPage />} />
+            <Route path="/c/:categorySlug" element={
+              <ErrorBoundary>
+                <CategoryPage />
+              </ErrorBoundary>
+            } />
             <Route path="/anuncio/:id" element={<AdDetail />} />
             <Route path="/minha-conta" element={<MinhaConta />} />
             <Route path="/login" element={<LoginPage />} />

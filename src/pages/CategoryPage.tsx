@@ -579,7 +579,7 @@ export default function CategoryPage() {
 
             {/* MOBILE FILTERS MODAL (OVERLAY) */}
             {isMobileFiltersOpen && (
-                <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in slide-in-from-bottom-10">
+                <div className="fixed inset-0 z-[100] bg-white flex flex-col" style={{ animation: 'slideUp 0.3s ease-out' }}>
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b border-gray-200">
                         <h2 className="font-bold text-gray-800 text-lg">Filtrar resultados</h2>
@@ -947,6 +947,8 @@ export default function CategoryPage() {
                                                         <img
                                                             src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
                                                             alt={ad.title}
+                                                            loading="lazy"
+                                                            onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Sem+Foto"; }}
                                                             className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                                         />
                                                         <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
@@ -1005,6 +1007,8 @@ export default function CategoryPage() {
                                                     <img
                                                         src={ad.images?.[0] || "https://placehold.co/400x300?text=Sem+Foto"}
                                                         alt={ad.title}
+                                                        loading="lazy"
+                                                        onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Sem+Foto"; }}
                                                         className="w-full h-full object-cover transition-transform group-hover:scale-105"
                                                     />
                                                     <div className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] font-bold px-1 py-0.5 rounded flex items-center gap-1">
