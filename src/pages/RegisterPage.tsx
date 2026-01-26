@@ -175,16 +175,7 @@ export default function RegisterPage() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const canProceed =
-        step === 1
-            ? !!formData.userType && captchaStatus === 'success'
-            : step === 2
-                ? !!formData.email && !!formData.agreedToTerms
-                : step === 3
-                    ? formData.verificationCode.every((c) => String(c).trim().length > 0)
-                    : step === 4
-                        ? !!formData.firstName && !!formData.lastName && !!formData.username && !!formData.phone && !!formData.password && formData.password.length >= 6
-                        : false;
+    // Button is always enabled, validation happens on click
 
     // Calculate progress bar width
     const getProgress = () => {
@@ -575,8 +566,8 @@ export default function RegisterPage() {
                             <div className="mt-8">
                                 <button
                                     onClick={handleNext}
-                                    disabled={!canProceed || isSubmitting}
-                                    className={`w-full font-semibold py-3 rounded-md transition-colors flex items-center justify-center gap-2 ${canProceed && !isSubmitting ? 'bg-viva-green text-white hover:bg-red-700' : 'bg-[#E5E7EB] text-gray-400 cursor-not-allowed'}`}
+                                    disabled={isSubmitting}
+                                    className={`w-full font-semibold py-3 rounded-md transition-colors flex items-center justify-center gap-2 ${!isSubmitting ? 'bg-viva-green text-white hover:bg-red-700' : 'bg-gray-400 text-white cursor-not-allowed'}`}
                                 >
                                     {isSubmitting && (
                                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
