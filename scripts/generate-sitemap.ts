@@ -28,6 +28,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 interface Listing {
     id: string;
     created_at: string;
+    updated_at?: string;
 }
 
 interface Category {
@@ -48,7 +49,7 @@ async function generateSitemap() {
         console.log('📋 Fetching active listings...');
         const { data: listings, error: listingsError } = await supabase
             .from('listings')
-            .select('id, created_at')
+            .select('id, created_at, updated_at')
             .eq('status', 'active')
             .order('created_at', { ascending: false });
 
@@ -79,7 +80,7 @@ async function generateSitemap() {
 
         // Add listings
         for (const listing of listings || []) {
-            const lastmod = listing.created_at.split('T')[0];
+            const lastmod = (listing.updated_at || listing.created_at).split('T')[0];
             xml += '  <url>\n';
             xml += `    <loc>${baseUrl}/anuncio/${listing.id}</loc>\n`;
             xml += `    <lastmod>${lastmod}</lastmod>\n`;
