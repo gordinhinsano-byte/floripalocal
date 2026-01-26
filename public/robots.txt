@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://floripalocal.com/sitemap.xml
+Sitemap: https://www.floripalocal.com/sitemap.xml
