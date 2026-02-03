@@ -160,8 +160,28 @@ export const Footer = () => {
         </div>
       </div>
 
-      {/* States Section Removed */}
-      {/* Cities Section Removed */}
+      {/* Hot Cities Widget (Internal Link Ninja) */}
+      <div className="container mx-auto px-4 py-8 border-t border-white/10">
+        <h4 className="font-bold text-xs mb-4 text-viva-green uppercase">Cidades Mais Buscadas</h4>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          {[
+            "Florianópolis", "São José", "Palhoça", "Biguaçu", "Balneário Camboriú",
+            "Itajaí", "Joinville", "Blumenau", "Chapecó", "Criciúma",
+            "Jaraguá do Sul", "Lages", "Rio do Sul", "Tubarão", "Brusque"
+          ].map((city) => (
+            <Link
+              key={city}
+              to={`/c/acompanhantes?state=${encodeURIComponent(city)}`}
+              className="text-[11px] text-gray-400 hover:text-white transition-colors"
+            >
+              Acompanhantes {city}
+            </Link>
+          ))}
+          <Link to="/c/acompanhantes?state=Santa%20Catarina" className="text-[11px] text-viva-green font-bold hover:text-white transition-colors">
+            Ver todas em Santa Catarina
+          </Link>
+        </div>
+      </div>
 
       {/* Bottom Section */}
       <div className="border-t border-white/10 bg-black/20">

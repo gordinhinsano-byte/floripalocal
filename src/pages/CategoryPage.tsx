@@ -548,16 +548,21 @@ export default function CategoryPage() {
         <div className="min-h-screen flex flex-col bg-white">
             <Helmet>
                 {/* SEO: Canonical URL */}
-                <link rel="canonical" href={`https://www.Floripa Local.com/c/${cleanSlug}`} />
+                <link rel="canonical" href={`https://www.floripalocal.com/c/${cleanSlug}`} />
 
                 {/* SEO: Robots */}
                 <meta name="robots" content="index,follow" />
 
                 {/* SEO: Title */}
-                <title>{seoTitle}</title>
+                <title>{selectedState && selectedState !== "TODO BRASIL" ? `${cleanTitle(categoryTitle, 50)} em ${selectedState} | Floripa Local` : `${seoTitle} - O Melhor de SC`}</title>
 
                 {/* SEO: Description */}
-                <meta name="description" content={introText.substring(0, 160)} />
+                <meta name="description" content={selectedState && selectedState !== "TODO BRASIL" ? `Encontre ${categoryTitle} em ${selectedState} com fotos reais e telefone. O melhor site de classificados para ${cleanSlug.replace(/-/g, ' ')} em ${selectedState}, Santa Catarina.` : introText.substring(0, 160)} />
+
+                {/* SEO: Keywords - Targeted for adult categories */}
+                {isAdultCategory && (
+                    <meta name="keywords" content={`acompanhantes ${selectedState !== "TODO BRASIL" ? selectedState.toLowerCase() : "florianopolis"}, garotas de programa, acompanhantes sc, viva local, vivalocal, acompanhantes sao jose, acompanhantes palhoca`} />
+                )}
 
                 {/* Schema.org: BreadcrumbList */}
                 <script type="application/ld+json">
@@ -567,6 +572,40 @@ export default function CategoryPage() {
                 {/* Schema.org: ItemList */}
                 <script type="application/ld+json">
                     {JSON.stringify(itemListSchema)}
+                </script>
+
+                {/* Schema.org: FAQPage (From SEO Strategy Step 8) */}
+                <script type="application/ld+json">
+                    {JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": [
+                            {
+                                "@type": "Question",
+                                "name": `Quanto custa ${categoryTitle} em ${selectedState || 'Florianópolis'}?`,
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Os valores variam conforme o anunciante. Verifique os anúncios individuais para detalhes de preços e serviços."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "É seguro contratar pelo Floripa Local?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Sim, recomendamos sempre verificar as fotos e contatar o anunciante via WhatsApp antes de qualquer encontro."
+                                }
+                            },
+                            {
+                                "@type": "Question",
+                                "name": "Como anunciar no Floripa Local?",
+                                "acceptedAnswer": {
+                                    "@type": "Answer",
+                                    "text": "Clique no botão 'Anunciar' no topo do site. É rápido, fácil e gratuito para categorias básicas."
+                                }
+                            }
+                        ]
+                    })}
                 </script>
             </Helmet>
 
@@ -789,9 +828,22 @@ export default function CategoryPage() {
                     <div className="flex flex-col md:flex-row justify-between items-end mb-4 border-b border-gray-200 pb-2">
                         <div className="flex items-baseline gap-6">
                             <h1 className="text-xl text-gray-800 font-normal">
-                                <span className="font-bold">{allFilteredAds.length} resultados</span> {categoryTitle} em {stateQuery || "Brasil"}
+                                {isAdultCategory && selectedState && selectedState !== "TODO BRASIL" ? (
+                                    <span className="font-bold">{cleanTitle(categoryTitle, 50)} {selectedState}</span>
+                                ) : (
+                                    <>
+                                        <span className="font-bold">{allFilteredAds.length} resultados</span> {categoryTitle} em {stateQuery || "Brasil"}
+                                    </>
+                                )}
                                 <div className="h-[3px] bg-viva-green w-full mt-1"></div>
                             </h1>
+
+                            {/* SEO Paragraph for Adult Categories with Location */}
+                            {isAdultCategory && selectedState && selectedState !== "TODO BRASIL" && (
+                                <p className="mt-2 text-sm text-gray-600 max-w-4xl">
+                                    Encontre <strong>{categoryTitle.toLowerCase()} {selectedState.toLowerCase()}</strong> e <strong>garotas de programa {selectedState.toLowerCase()}</strong> com WhatsApp atualizado. Atendimento 24h em motéis e hotéis na região de {selectedState}. Verifique as fotos e marque seu encontro agora.
+                                </p>
+                            )}
 
                             {!isAdultCategory && (
                                 <div className="flex gap-4 text-sm text-gray-500 font-medium">
