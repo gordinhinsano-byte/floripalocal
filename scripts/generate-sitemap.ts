@@ -89,7 +89,13 @@ async function generateSitemap() {
             xml += '  </url>\n';
         }
 
-        // Add categories
+        const priorityCities = [
+            "Florianópolis", "São José", "Palhoça", "Biguaçu", "Balneário Camboriú",
+            "Itajaí", "Joinville", "Blumenau", "Chapecó", "Criciúma",
+            "Jaraguá do Sul", "Lages", "Rio do Sul", "Tubarão", "Brusque"
+        ];
+
+        // Add categories and City combinations
         for (const path of categories) {
             // path is like "/c/slug"
             const fullUrl = `${baseUrl}${path}`;
@@ -100,6 +106,19 @@ async function generateSitemap() {
             xml += '    <changefreq>daily</changefreq>\n';
             xml += '    <priority>0.9</priority>\n';
             xml += '  </url>\n';
+
+            // Add City combinations for high-value categories
+            if (path.includes('acompanhantes') || path.includes('massagistas') || path.includes('trans')) {
+                for (const city of priorityCities) {
+                    const cityUrl = `${fullUrl}?state=${encodeURIComponent(city)}`;
+                    xml += '  <url>\n';
+                    xml += `    <loc>${cityUrl}</loc>\n`;
+                    xml += `    <lastmod>${lastmod}</lastmod>\n`;
+                    xml += '    <changefreq>daily</changefreq>\n';
+                    xml += '    <priority>0.9</priority>\n'; // High priority for local SEO
+                    xml += '  </url>\n';
+                }
+            }
         }
 
         xml += '</urlset>';
